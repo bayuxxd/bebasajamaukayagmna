@@ -398,7 +398,8 @@ const startSesi = async () => {
                 }),
                 printQRInTerminal: !usePairingCode,
                 auth: state,
-                browser: Browsers.ubuntu('Chrome'),
+                browser: ["Ubuntu", "Chrome", "20.0.04"],
+
         });
         if (usePairingCode && !state.creds.registered) {
                 const phoneNumber = "6283843151551"; 
