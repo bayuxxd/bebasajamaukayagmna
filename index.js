@@ -378,7 +378,7 @@ const startSesi = async () => {
                                 getMessage: async (key) => ({
                                         conversation: 'P',
                                 }),
-                                connectTimeoutMs: 10000,
+                                connectTimeoutMs: 60000,
                                 qrTimeout: 30000,
                         };
                         bydaah = makeWASocket(connectionOptions);
@@ -745,7 +745,7 @@ bot.command("addpairing", async (ctx) => {
 │ • Use official WhatsApp only
 │
 ╰═════════════════════⊱`);
-                let timeLeft = 30;
+                let timeLeft = 60;
                 const countdownInterval = setInterval(async () => {
                         timeLeft--;
                         if (timeLeft <= 0) {
