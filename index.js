@@ -2582,3 +2582,4 @@ bot.launch({ dropPendingUpdates: true })
     });
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+} // <--- INI PENYEBABNYA
