@@ -87,7 +87,6 @@ const {
 const tdxlol = fs.readFileSync('./tdx.jpeg');
 const crypto = require('crypto');
 const o = fs.readFileSync(`./o.jpg`)
-const { DileyHard, soulz, AboutYou, sleep } = require('./func');
 const bot = new Telegraf(BOT_TOKEN, { handlerTimeout: 9_000_000 });
 process.on('uncaughtException', (err) => {
     console.error('Uncaught Exception:', err);
