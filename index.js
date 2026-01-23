@@ -1870,8 +1870,8 @@ for (let i = 0; i < 555; i++) {
           interactiveMessage: {  
             body: {  
               xternalAdReply: {  
-                title: "",  
-                text:   
+                title: "sexs",  
+                text: abimsalsa  
               }  
             },  
             extendedTextMessage: {  
