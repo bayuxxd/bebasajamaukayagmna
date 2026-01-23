@@ -75,7 +75,7 @@ const {
         templateMessage,
         InteractiveMessage,
         Header
-} = require('@whiskeybydaahets/baileys');
+} = require('@whiskeysockets/baileys');
 const pino = require('pino');
 const chalk = require('chalk');
 const axios = require('axios');
