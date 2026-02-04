@@ -1803,13 +1803,18 @@ bot.command("xandro", checkWhatsAppConnection, checkPremium, async (ctx) => {
 
 
 // ===== START MENU =====
-
 bot.start(async (ctx) => {
-  await ctx.telegram.sendChatAction(ctx.chat.id, "typing");
+  try {
+    const chatId = ctx.chat?.id;
+    if (!chatId) return;
+    try {
+      await ctx.telegram.sendChatAction(chatId, "typing");
+    } catch {}
+    const videoUrl = "https://files.catbox.moe/mnlvy3.mp4";
+    const audioUrl =
+      "https://raw.githubusercontent.com/bayuxxd/bebasajamaukayagmna/main/lagu.mp3";
 
-  const gambarnyangentod = "https://files.catbox.moe/mnlvy3.mp4";
-
-  const PalaLoegedebanget = `<blockquote>
+    const caption = `<blockquote>
 ╔═⸸ 𝐒𝐎𝐔𝐋 𝐑𝐄𝐀𝐏𝐄𝐑 ⸸═╗
 ║ ᝰ.ᐟ sᴇʟᴀᴍᴀᴛ ᴅᴀᴛᴀɴɢ ᴅɪ ᴋᴇɢᴇʟᴀᴘᴀɴ
 ║ ᝰ.ᐟ ᴛᴇʀɪᴍᴀ ᴋᴀsɪʜ ᴛᴇʟᴀʜ ᴍᴇᴍɪʟɪʜ
@@ -1832,23 +1837,47 @@ bot.start(async (ctx) => {
 </blockquote>
 » © 𐊖𐊒𐌵𐎘 ! @zihardev`;
 
-  const jokowi = [
-    [
-      { text: "MENU DEV", callback_data: "soultampleng" },
-      { text: "MENU", callback_data: "bugmen" },
-      { text: "ADM MENU", callback_data: "ulznxx" },
-      { text: "SI GANTENG", url: "https://t.me/zihardev" },
-    ],
-  ];
+    const keyboard = [
+      [
+        { text: "MENU DEV", callback_data: "soultampleng" },
+        { text: "MENU", callback_data: "bugmen" },
+      ],
+      [
+        { text: "ADM MENU", callback_data: "ulznxx" },
+        { text: "SI GANTENG", url: "https://t.me/zihardev" },
+      ],
+    ];
 
-  await ctx.replyWithVideo(gambarnyangentod, {
-    caption: PalaLoegedebanget,
-    parse_mode: "HTML",
-    reply_markup: { inline_keyboard: jokowi },
-    reply_to_message_id: ctx.message.message_id,
-  });
+    const replyTo = ctx.message?.message_id;
+    await ctx.replyWithVideo(videoUrl, {
+      caption,
+      parse_mode: "HTML",
+      reply_markup: { inline_keyboard: keyboard },
+      ...(replyTo ? { reply_to_message_id: replyTo } : {}),
+    });
+    setTimeout(async () => {
+      try {
+        await bot.telegram.sendAudio(chatId, audioUrl, {
+          title: "𝐒𝐎𝐔𝐋 𝐑𝐄𝐀𝐏𝐄𝐑",
+          performer: "Version 1.1",
+          caption: "𝐒𝐎𝐔𝐋 𝐑𝐄𝐀𝐏𝐄𝐑",
+          parse_mode: "HTML",
+        });
+      } catch (e) {
+        console.error("SEND AUDIO ERROR:", e);
+        try {
+          await ctx.reply("Audio gagal dikirim (link/timeout).");
+        } catch {}
+      }
+    }, 300);
+  } catch (err) {
+    console.error("START ERROR:", err);
+    try {
+      await ctx.reply("Bot aktif ✅");
+    } catch {}
+  }
+});
 
-  
 bot.action(/^(soultampleng|ulznxx|bugmen|byza)$/, async (ctx) => {
   try {
     await ctx.answerCbQuery();
