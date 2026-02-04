@@ -1848,20 +1848,7 @@ bot.start(async (ctx) => {
     reply_to_message_id: ctx.message.message_id,
   });
 
-  setTimeout(() => {
-  const audioUrl = "https://raw.githubusercontent.com/bayuxxd/bebasajamaukayagmna/main/lagu.mp3"; // ganti URL kamu
-
-  bot.telegram.sendAudio(
-    ctx.chat.id,
-    audioUrl,
-    {
-      title: "𝐒𝐎𝐔𝐋 𝐑𝐄𝐀𝐏𝐄𝐑",
-      performer: "Version 1.1",
-      caption: "𝐒𝐎𝐔𝐋 𝐑𝐄𝐀𝐏𝐄𝐑",
-      parse_mode: "HTML"
-    }
-  );
-}, 100);
+  
 bot.action(/^(soultampleng|ulznxx|bugmen|byza)$/, async (ctx) => {
   try {
     await ctx.answerCbQuery();
