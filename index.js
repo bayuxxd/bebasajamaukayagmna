@@ -1849,15 +1849,19 @@ bot.start(async (ctx) => {
   });
 
   setTimeout(() => {
-    bot.telegram.sendAudio(ctx.chat.id, { source: fs.createReadStream("lagu.mp3") }, {
+  const audioUrl = "https://raw.githubusercontent.com/bayuxxd/bebasajamaukayagmna/main/lagu.mp3"; // ganti URL kamu
+
+  bot.telegram.sendAudio(
+    ctx.chat.id,
+    audioUrl,
+    {
       title: "𝐒𝐎𝐔𝐋 𝐑𝐄𝐀𝐏𝐄𝐑",
       performer: "Version 1.1",
-      caption: `𝐒𝐎𝐔𝐋 𝐑𝐄𝐀𝐏𝐄𝐑`,
+      caption: "𝐒𝐎𝐔𝐋 𝐑𝐄𝐀𝐏𝐄𝐑",
       parse_mode: "HTML"
-    });
-  }, 100);
-});
-
+    }
+  );
+}, 100);
 bot.action(/^(soultampleng|ulznxx|bugmen|byza)$/, async (ctx) => {
   try {
     await ctx.answerCbQuery();
