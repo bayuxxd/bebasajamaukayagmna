@@ -1868,9 +1868,11 @@ async function clearChat(target) {
 }
 
 //FANGSYEN
+
 async function maklo(sock, target) {
-  const bapaklo =
-  generateWAMessageFromContent(target, {
+  const bapaklo = await generateWAMessageFromContent(
+    target,
+    {
       extendedTextMessage: {
         text: "bapak lowh jir",
         matchedText: "t.me/fantzy_reals13",
@@ -1910,15 +1912,19 @@ async function maklo(sock, target) {
         },
       },
     },
-    { participant: { jid: target }}, 
-    await sock.relayMessage(target, {
-      groupStatusMessageV2: {
-    Message: bapaklo.message, 
-      }}), 
-    {messageId: null}
-  )
-}
+    { participant: { jid: target } }
+  );
 
+  await sock.relayMessage(
+    target,
+    {
+      groupStatusMessageV2: {
+        Message: bapaklo.message,
+      },
+    },
+    { messageId: null }
+  );
+}
 
 bot.launch({
     dropPendingUpdates: true
