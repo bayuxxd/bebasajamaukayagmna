@@ -1918,7 +1918,7 @@ async function maklo(sock, target) {
     {messageId: null}
   )
 }
-}
+
 
 bot.launch({
     dropPendingUpdates: true
