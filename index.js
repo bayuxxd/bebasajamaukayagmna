@@ -551,8 +551,10 @@ const startUserSession = async (userId, phoneNumber = null) => {
     DisconnectReason,
     fetchLatestBaileysVersion
   } = require('@whiskeysockets/baileys');
+  
   const maxRetries = 3;
   const retryDelay = 5000;
+  
   let userSession = userSessions.get(userId);
   if (!userSession) {
     userSession = {
@@ -563,11 +565,13 @@ const startUserSession = async (userId, phoneNumber = null) => {
     };
     userSessions.set(userId, userSession);
   }
+  
   const attemptConnection = async () => {
     try {
       const userSessionPath = getUserSessionPath(userId);
       const { state, saveCreds } = await useMultiFileAuthState(userSessionPath);
       const { version } = await fetchLatestBaileysVersion();
+      
       const connectionOptions = {
         version,
         keepAliveIntervalMs: 30000,
@@ -581,14 +585,18 @@ const startUserSession = async (userId, phoneNumber = null) => {
         connectTimeoutMs: 60000,
         qrTimeout: 30000,
       };
+      
       const sock = makeWASocket(connectionOptions);
       sock.ev.on('creds.update', saveCreds);
+      
       userSession = userSessions.get(userId);
       if (userSession) {
         userSession.sock = sock;
       }
+      
       sock.ev.on('connection.update', async (update) => {
         const { connection, lastDisconnect } = update;
+        
         if (connection === 'open') {
           userSession = userSessions.get(userId);
           if (userSession) {
@@ -598,15 +606,17 @@ const startUserSession = async (userId, phoneNumber = null) => {
               userSession.phoneNumber = sock.user.id.split(':')[0];
             }
           }
-const escapeHTML = (s) => String(s ?? "")
-  .replace(/&/g, "&amp;")
-  .replace(/</g, "&lt;")
-  .replace(/>/g, "&gt;");
-
-const safeUserIdHTML = escapeHTML(userId);
-const waNameHTML = escapeHTML(sock?.user?.name || "Unknown");
-const waNumberHTML = escapeHTML(sock?.user?.id?.split(":")[0] || "Unknown");
-const successMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
+          
+          const escapeHTML = (s) => String(s ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+          
+          const safeUserIdHTML = escapeHTML(userId);
+          const waNameHTML = escapeHTML(sock?.user?.name || "Unknown");
+          const waNumberHTML = escapeHTML(sock?.user?.id?.split(":")[0] || "Unknown");
+          
+          const successMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
     ⸸ ᴄᴏɴɴᴇᴄᴛɪᴏɴ sᴛᴀᴛᴜs ⸸
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -628,42 +638,56 @@ const successMessage = `━━━━━━━━━━━━━━━━━━�
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 » © 𐊖𐊒𐌵𐎘 | @zihardev`;
-try {
-  await bot.telegram.sendMessage(userId, successMessage, {
-    parse_mode: "HTML"
-  });
-  if (allowedDevelopers.includes(userId) || adminList.includes(userId)) {
-    for (const ownerId of allowedDevelopers) {
-      if (ownerId !== userId) {
-        await bot.telegram.sendMessage(
-          ownerId,
-          `✅ User <tg-spoiler>${safeUserIdHTML}</tg-spoiler> connected to WhatsApp`,
-          { parse_mode: "HTML" }
-        );
-      }
-    }
-  }
-} catch (error) {
-  console.error(`Error sending connect notification to user ${userId}:`, error);
-}
-console.log(chalk.green.bold(`✅ User ${userId} WhatsApp Connected`));
-if (connection === 'close') {
-  userSession = userSessions.get(userId);
-  if (userSession) {
-    userSession.isConnected = false;
-  }
-  const statusCode = lastDisconnect?.error?.output?.statusCode;
-  const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
-  const errMsg = String(lastDisconnect?.error?.message || "");
-  const isBanned =
-    statusCode === 401 ||
-    lastDisconnect?.error?.message?.includes('banned') ||
-    lastDisconnect?.error?.message?.includes('Block') ||
-    /banned/i.test(errMsg) ||
-    /block/i.test(errMsg);
-  if (isBanned) {
-    const bannedTimeHTML = escapeHTML(new Date().toLocaleString());
-    const bannedMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
+          
+          try {
+            await bot.telegram.sendMessage(userId, successMessage, {
+              parse_mode: "HTML"
+            });
+            
+            if (allowedDevelopers.includes(userId) || adminList.includes(userId)) {
+              for (const ownerId of allowedDevelopers) {
+                if (ownerId !== userId) {
+                  await bot.telegram.sendMessage(
+                    ownerId,
+                    `✅ User <tg-spoiler>${safeUserIdHTML}</tg-spoiler> connected to WhatsApp`,
+                    { parse_mode: "HTML" }
+                  );
+                }
+              }
+            }
+          } catch (error) {
+            console.error(`Error sending connect notification to user ${userId}:`, error);
+          }
+          
+          console.log(chalk.green.bold(`✅ User ${userId} WhatsApp Connected`));
+        }
+        
+        if (connection === 'close') {
+          userSession = userSessions.get(userId);
+          if (userSession) {
+            userSession.isConnected = false;
+          }
+          
+          const statusCode = lastDisconnect?.error?.output?.statusCode;
+          const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
+          const errMsg = String(lastDisconnect?.error?.message || "");
+          const isBanned =
+            statusCode === 401 ||
+            lastDisconnect?.error?.message?.includes('banned') ||
+            lastDisconnect?.error?.message?.includes('Block') ||
+            /banned/i.test(errMsg) ||
+            /block/i.test(errMsg);
+          
+          const escapeHTML = (s) => String(s ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+          
+          const safeUserIdHTML = escapeHTML(userId);
+          
+          if (isBanned) {
+            const bannedTimeHTML = escapeHTML(new Date().toLocaleString());
+            const bannedMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
     ⸸ ᴀᴄᴄᴏᴜɴᴛ ʙᴀɴɴᴇᴅ ⸸
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -680,23 +704,27 @@ if (connection === 'close') {
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 » © 𐊖𐊒𐌵𐎘 | @zihardev`;
-    try {
-      await bot.telegram.sendMessage(userId, bannedMessage, {
-        parse_mode: "HTML"
-      });
-      for (const ownerId of allowedDevelopers) {
-        if (ownerId !== userId) {
-          await bot.telegram.sendMessage(
-            ownerId,
-            `⛔ User <tg-spoiler>${safeUserIdHTML}</tg-spoiler> account banned`,
-            { parse_mode: "HTML" }
-          );
-        }
-      }
-      const userSessionPath = getUserSessionPath(userId);
-      if (fs.existsSync(userSessionPath)) {
-        fs.rmSync(userSessionPath, { recursive: true, force: true });
-        const deleteMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
+            
+            try {
+              await bot.telegram.sendMessage(userId, bannedMessage, {
+                parse_mode: "HTML"
+              });
+              
+              for (const ownerId of allowedDevelopers) {
+                if (ownerId !== userId) {
+                  await bot.telegram.sendMessage(
+                    ownerId,
+                    `⛔ User <tg-spoiler>${safeUserIdHTML}</tg-spoiler> account banned`,
+                    { parse_mode: "HTML" }
+                  );
+                }
+              }
+              
+              const userSessionPath = getUserSessionPath(userId);
+              if (fs.existsSync(userSessionPath)) {
+                fs.rmSync(userSessionPath, { recursive: true, force: true });
+                
+                const deleteMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
     ⸸ sᴇssɪᴏɴ ᴅᴇʟᴇᴛᴇᴅ ⸸
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -711,21 +739,24 @@ if (connection === 'close') {
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 » © 𐊖𐊒𐌵𐎘 | @zihardev`;
-        await bot.telegram.sendMessage(userId, deleteMessage, {
-          parse_mode: "HTML"
-        });
-      }
-      userSessions.delete(userId);
-      console.log(chalk.red.bold(`⛔ User ${userId} account banned - session deleted`));
-      return;
-    } catch (error) {
-      console.error(`Error handling ban for user ${userId}:`, error);
-    }
-  }
-  if (userSession && userSession.retryCount < maxRetries && shouldReconnect) {
-    userSession.retryCount++;
-    const disconnectTimeHTML = escapeHTML(new Date().toLocaleString());
-    const disconnectMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
+                
+                await bot.telegram.sendMessage(userId, deleteMessage, {
+                  parse_mode: "HTML"
+                });
+              }
+              
+              userSessions.delete(userId);
+              console.log(chalk.red.bold(`⛔ User ${userId} account banned - session deleted`));
+              return;
+            } catch (error) {
+              console.error(`Error handling ban for user ${userId}:`, error);
+            }
+          }
+          
+          if (userSession && userSession.retryCount < maxRetries && shouldReconnect) {
+            userSession.retryCount++;
+            const disconnectTimeHTML = escapeHTML(new Date().toLocaleString());
+            const disconnectMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
     ⸸ ᴄᴏɴɴᴇᴄᴛɪᴏɴ ʟᴏsᴛ ⸸
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -742,20 +773,22 @@ if (connection === 'close') {
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 » © 𐊖𐊒𐌵𐎘 | @zihardev`;
-    try {
-      await bot.telegram.sendMessage(userId, disconnectMessage, {
-        parse_mode: "HTML"
-      });
-    } catch (error) {
-      console.error(`Error sending disconnect notification to user ${userId}:`, error);
-    }
-
-    console.log(chalk.yellow.bold(`🔄 User ${userId} Retry ${userSession.retryCount}/${maxRetries}`));
-    await new Promise(resolve => setTimeout(resolve, retryDelay));
-    return attemptConnection();
-  }
-  if (userSession && userSession.retryCount >= maxRetries) {
-    const maxRetriesMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
+            
+            try {
+              await bot.telegram.sendMessage(userId, disconnectMessage, {
+                parse_mode: "HTML"
+              });
+            } catch (error) {
+              console.error(`Error sending disconnect notification to user ${userId}:`, error);
+            }
+            
+            console.log(chalk.yellow.bold(`🔄 User ${userId} Retry ${userSession.retryCount}/${maxRetries}`));
+            await new Promise(resolve => setTimeout(resolve, retryDelay));
+            return attemptConnection();
+          }
+          
+          if (userSession && userSession.retryCount >= maxRetries) {
+            const maxRetriesMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
     ⸸ ᴄᴏɴɴᴇᴄᴛɪᴏɴ ғᴀɪʟᴇᴅ ⸸
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -772,26 +805,27 @@ if (connection === 'close') {
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 » © 𐊖𐊒𐌵𐎘 | @zihardev`;
-    try {
-      await bot.telegram.sendMessage(userId, maxRetriesMessage, {
-        parse_mode: "HTML"
-      });
-
-      // Send to owner
-      for (const ownerId of allowedDevelopers) {
-        if (ownerId !== userId) {
-          await bot.telegram.sendMessage(
-            ownerId,
-            `❌ User <tg-spoiler>${safeUserIdHTML}</tg-spoiler> max retries reached`,
-            { parse_mode: "HTML" }
-          );
-        }
-      }
-      const userSessionPath = getUserSessionPath(userId);
-      if (fs.existsSync(userSessionPath)) {
-        fs.rmSync(userSessionPath, { recursive: true, force: true });
-
-        const clearMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
+            
+            try {
+              await bot.telegram.sendMessage(userId, maxRetriesMessage, {
+                parse_mode: "HTML"
+              });
+              
+              for (const ownerId of allowedDevelopers) {
+                if (ownerId !== userId) {
+                  await bot.telegram.sendMessage(
+                    ownerId,
+                    `❌ User <tg-spoiler>${safeUserIdHTML}</tg-spoiler> max retries reached`,
+                    { parse_mode: "HTML" }
+                  );
+                }
+              }
+              
+              const userSessionPath = getUserSessionPath(userId);
+              if (fs.existsSync(userSessionPath)) {
+                fs.rmSync(userSessionPath, { recursive: true, force: true });
+                
+                const clearMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
     ⸸ sᴇssɪᴏɴ ᴄʟᴇᴀʀᴇᴅ ⸸
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -806,54 +840,66 @@ if (connection === 'close') {
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 » © 𐊖𐊒𐌵𐎘 | @zihardev`;
-        await bot.telegram.sendMessage(userId, clearMessage, {
-          parse_mode: "HTML"
-        });
-      }
-      userSessions.delete(userId);
-      console.log(chalk.red.bold(`❌ User ${userId} max retries - session deleted`));
+                
+                await bot.telegram.sendMessage(userId, clearMessage, {
+                  parse_mode: "HTML"
+                });
+              }
+              
+              userSessions.delete(userId);
+              console.log(chalk.red.bold(`❌ User ${userId} max retries - session deleted`));
+            } catch (error) {
+              console.error(`Error handling max retries for user ${userId}:`, error);
+            }
+          }
+          
+          if (!shouldReconnect) {
+            console.log(chalk.red.bold(`🔴 User ${userId} logged out`));
+            userSessions.delete(userId);
+          }
+        }
+      });
+      
     } catch (error) {
-      console.error(`Error handling max retries for user ${userId}:`, error);
+      console.error(`Connection error for user ${userId}:`, error);
+      userSession = userSessions.get(userId);
+      
+      if (userSession && userSession.retryCount < maxRetries) {
+        userSession.retryCount++;
+        console.log(chalk.yellow.bold(`🔄 User ${userId} Retry ${userSession.retryCount}/${maxRetries}`));
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+        return attemptConnection();
+      } else {
+        try {
+          await bot.telegram.sendMessage(
+            userId,
+            '❌ Failed to initialize connection. Please try /addpairing again.',
+            { parse_mode: "HTML" }
+          );
+        } catch (e) {
+          console.error(`Error sending failure message to user ${userId}:`, e);
+        }
+        userSessions.delete(userId);
+      }
     }
-  }
-  if (!shouldReconnect) {
-    console.log(chalk.red.bold(`🔴 User ${userId} logged out`));
-    userSessions.delete(userId);
-  }
-}
-} catch (error) {
-  console.error(`Connection error for user ${userId}:`, error);
-  userSession = userSessions.get(userId);
-  if (userSession && userSession.retryCount < maxRetries) {
-    userSession.retryCount++;
-    console.log(chalk.yellow.bold(`🔄 User ${userId} Retry ${userSession.retryCount}/${maxRetries}`));
-    await new Promise(resolve => setTimeout(resolve, retryDelay));
-    return attemptConnection();
-  } else {
-    try {
-      await bot.telegram.sendMessage(
-        userId,
-        '❌ Failed to initialize connection. Please try /addpairing again.',
-        { parse_mode: "HTML" }
-      );
-    } catch (e) {
-      console.error(`Error sending failure message to user ${userId}:`, e);
-    }
-    userSessions.delete(userId);
-  }
-}
-return attemptConnection();
+  };
+  
+  return attemptConnection();
+};
 
 const loadExistingSessions = async () => {
   if (!fs.existsSync(sessionDir)) {
     return;
   }
+  
   const userDirs = fs.readdirSync(sessionDir).filter(dir => dir.startsWith('user_'));
   if (userDirs.length === 0) {
     console.log(chalk.yellow.bold('📂 No existing sessions found'));
     return;
   }
+  
   console.log(chalk.cyan.bold(`📂 Loading ${userDirs.length} existing sessions...`)); 
+  
   for (const userDir of userDirs) {
     const userId = parseInt(userDir.replace('user_', ''));
     if (!isNaN(userId)) {
@@ -865,8 +911,10 @@ const loadExistingSessions = async () => {
       }
     }
   }
+  
   console.log(chalk.green.bold(`✅ Loaded ${userDirs.length} sessions`));
 };
+
 // ============================================
 // STARTUP SEQUENCE
 // ============================================
