@@ -1491,7 +1491,7 @@ bot.action(/^copy_(.+)$/, async (ctx) => {
     await ctx.answerCbQuery("✅ Code copied! Paste in WhatsApp", { show_alert: false });
     
     await ctx.reply(
-      `<b>📋 PAIRING CODE:</b>\n\n<pre>${code}</pre>\n\n<i>Tap code above to copy</i>`,
+      `<b>📋 PAIRING CODE:</b>\n\n<code>${code}</code>\n\n<i>Tap code above to copy</i>`,
       { parse_mode: "HTML" }
     );
   } catch (err) {
