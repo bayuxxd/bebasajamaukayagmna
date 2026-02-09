@@ -595,7 +595,7 @@ const startUserSession = async (userId, phoneNumber = null) => {
         printQRInTerminal: false,
         logger: pino({ level: "silent" }),
         auth: state,
-        browser: ['Soul Reaper', 'Chrome', '1.0.0'],
+        browser: ['Mac OS', 'Safari', '10.15.7'],
         getMessage: async (key) => ({
           conversation: 'P',
         }),
