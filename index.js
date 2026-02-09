@@ -2020,7 +2020,7 @@ const donerespone = async (target, ctx) => {
   }
 };
 const checkWhatsAppConnection = async (ctx, next) => {
-  if (!isWhatsAppConnected) {
+  if (!userSession) {
     await ctx.reply("❌ WhatsApp belum terhubung. Silakan gunakan command /addpairing");
     return;
   }
