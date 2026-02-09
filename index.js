@@ -499,7 +499,9 @@ let allowedBotTokens = [];
 let ownerataubukan;
 let adminataubukan;
 let whatsappUserInfo = null;
+
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const isOwner = (userId) => {
   if (ownerList.includes(userId.toString())) {
     ownerataubukan = "✅";
@@ -509,6 +511,7 @@ const isOwner = (userId) => {
     return false;
   }
 };
+
 const OWNER_ID = (userId) => {
   if (allowedDevelopers.includes(userId.toString())) {
     ysudh = "✅";
@@ -519,13 +522,16 @@ const OWNER_ID = (userId) => {
   }
 };
 
-//con
-
+// ============================================
+// SESSION MANAGEMENT
+// ============================================
 const userSessions = new Map(); 
 const sessionDir = path.join(__dirname, 'sessions');
+
 if (!fs.existsSync(sessionDir)) {
   fs.mkdirSync(sessionDir, { recursive: true });
 }
+
 function getUserSessionPath(userId) {
   const userDir = path.join(sessionDir, `user_${userId}`);
   if (!fs.existsSync(userDir)) {
@@ -533,6 +539,7 @@ function getUserSessionPath(userId) {
   }
   return userDir;
 }
+
 function getUserSocket(userId) {
   const session = userSessions.get(userId);
   if (!session || !session.isConnected) {
@@ -540,10 +547,15 @@ function getUserSocket(userId) {
   }
   return session.sock;
 }
+
 function hasActiveSession(userId) {
   const session = userSessions.get(userId);
   return session && session.isConnected;
 }
+
+// ============================================
+// START USER SESSION
+// ============================================
 const startUserSession = async (userId, phoneNumber = null) => {
   const {
     default: makeWASocket,
@@ -565,6 +577,11 @@ const startUserSession = async (userId, phoneNumber = null) => {
     };
     userSessions.set(userId, userSession);
   }
+  
+  const escapeHTML = (s) => String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
   
   const attemptConnection = async () => {
     try {
@@ -606,11 +623,6 @@ const startUserSession = async (userId, phoneNumber = null) => {
               userSession.phoneNumber = sock.user.id.split(':')[0];
             }
           }
-          
-          const escapeHTML = (s) => String(s ?? "")
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
           
           const safeUserIdHTML = escapeHTML(userId);
           const waNameHTML = escapeHTML(sock?.user?.name || "Unknown");
@@ -677,11 +689,6 @@ const startUserSession = async (userId, phoneNumber = null) => {
             lastDisconnect?.error?.message?.includes('Block') ||
             /banned/i.test(errMsg) ||
             /block/i.test(errMsg);
-          
-          const escapeHTML = (s) => String(s ?? "")
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
           
           const safeUserIdHTML = escapeHTML(userId);
           
@@ -860,6 +867,8 @@ const startUserSession = async (userId, phoneNumber = null) => {
         }
       });
       
+      return sock;
+      
     } catch (error) {
       console.error(`Connection error for user ${userId}:`, error);
       userSession = userSessions.get(userId);
@@ -880,6 +889,7 @@ const startUserSession = async (userId, phoneNumber = null) => {
           console.error(`Error sending failure message to user ${userId}:`, e);
         }
         userSessions.delete(userId);
+        return null;
       }
     }
   };
@@ -887,6 +897,9 @@ const startUserSession = async (userId, phoneNumber = null) => {
   return attemptConnection();
 };
 
+// ============================================
+// LOAD EXISTING SESSIONS
+// ============================================
 const loadExistingSessions = async () => {
   if (!fs.existsSync(sessionDir)) {
     return;
@@ -947,11 +960,13 @@ const loadExistingSessions = async () => {
 bot.command("addpairing", async (ctx) => {
   await ctx.telegram.sendChatAction(ctx.chat.id, "typing");
   const userId = ctx.from.id;
+  
   const escapeHTML = (s) =>
     String(s ?? "")
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
+  
   function formatPhoneNumber(number) {
     let cleaned = number.replace(/[^0-9]/g, "");
     cleaned = cleaned.replace(/^\+/, "");
@@ -963,6 +978,7 @@ bot.command("addpairing", async (ctx) => {
       return cleaned;
     }
   }
+  
   const args = ctx.message.text.split(/\s+/);
   if (args.length < 2) {
     const helpMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -983,8 +999,10 @@ sᴜᴘᴘᴏʀᴛᴇᴅ:
 » © 𐊖𐊒𐌵𐎘 | @zihardev`;
     return await ctx.reply(helpMessage);
   }
+  
   let phoneNumber = args.slice(1).join("");
   phoneNumber = formatPhoneNumber(phoneNumber);
+  
   try {
     let userSession = userSessions.get(userId);
     if (userSession && userSession.isConnected) {
@@ -1009,16 +1027,21 @@ sᴜᴘᴘᴏʀᴛᴇᴅ:
         { parse_mode: "HTML" }
       );
     }
+    
     await ctx.reply("⏳ Initializing your WhatsApp connection...");
+    
     const sock = await startUserSession(userId, phoneNumber);
     if (!sock) {
       throw new Error("Failed to initialize WhatsApp socket");
     }
+    
     await new Promise((resolve) => setTimeout(resolve, 3000));
     await ctx.reply("⏳ Processing pairing request...");
+    
     let pairingCode;
     let retryCount = 0;
     const maxRetries = 3;
+    
     while (retryCount < maxRetries && !pairingCode) {
       try {
         pairingCode = await sock.requestPairingCode(phoneNumber);
@@ -1031,13 +1054,16 @@ sᴜᴘᴘᴏʀᴛᴇᴅ:
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
     }
+    
     userSession = userSessions.get(userId);
     if (userSession) {
       userSession.phoneNumber = phoneNumber;
     }
+    
     const userIdHTML = escapeHTML(userId);
     const phoneHTML = escapeHTML(phoneNumber);
     const pairingCodeHTML = escapeHTML(pairingCode);
+    
     const initialMsg = await ctx.reply(
       `━━━━━━━━━━━━━━━━━━━━━━━━━━
     ⸸ ᴘᴀɪʀɪɴɢ ᴄᴏᴅᴇ ⸸
@@ -1081,6 +1107,7 @@ sᴜᴘᴘᴏʀᴛᴇᴅ:
         },
       }
     );
+    
     let timeLeft = 60;
     const countdownInterval = setInterval(async () => {
       timeLeft--;
@@ -1126,6 +1153,7 @@ sᴜᴘᴘᴏʀᴛᴇᴅ:
         }
         return;
       }
+      
       try {
         await ctx.telegram.editMessageText(
           ctx.chat.id,
@@ -1177,11 +1205,12 @@ sᴜᴘᴘᴏʀᴛᴇᴅ:
         console.error("Error updating countdown:", error);
       }
     }, 1000);
+    
   } catch (error) {
     console.error("Pairing Error:", error);
     const userIdHTML = escapeHTML(userId);
     const phoneHTML = escapeHTML(phoneNumber);
-
+    
     const errorMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
     ⸸ ᴘᴀɪʀɪɴɢ ᴇʀʀᴏʀ ⸸
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1200,7 +1229,9 @@ sᴜᴘᴘᴏʀᴛᴇᴅ:
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 » © 𐊖𐊒𐌵𐎘 | @zihardev`;
+    
     await ctx.reply(errorMessage, { parse_mode: "HTML" });
+    
     userSessions.delete(userId);
     const userSessionPath = getUserSessionPath(userId);
     if (fs.existsSync(userSessionPath)) {
@@ -1208,6 +1239,8 @@ sᴜᴘᴘᴏʀᴛᴇᴅ:
     }
   }
 });
+
+
 // ============================================
 // COMMAND: /mysession
 // ============================================
